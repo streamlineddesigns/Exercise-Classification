@@ -48,6 +48,18 @@ public class MoveNetSinglePoseSample : MonoBehaviour
         drawer?.Dispose();
     }
 
+    public MoveNetPose GetPose()
+    {
+        return pose;
+    }
+
+    public void CleanUp()
+    {
+        runBackground = false;
+        var webCamInput = GetComponent<WebCamInput>();
+        webCamInput.OnTextureUpdate.RemoveListener(OnTextureUpdate);
+    }
+
     private void Update()
     {
         if (pose != null)
