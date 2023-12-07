@@ -33,6 +33,10 @@ public class TrainingController : MonoBehaviour
 
     private bool isRecording;
 
+    private bool isContinuous = false;
+
+    private bool isCountingDown;
+
     private Vector2 anchorPoint = new Vector2(0.5f, 0.1f);
 
 
@@ -51,7 +55,7 @@ public class TrainingController : MonoBehaviour
     public void SaveButtonClick()
     {
         StopRecording();
-        AddAdditionalClassSampling();
+        if (isContinuous) AddAdditionalClassSampling();
         SerializeTrainingData();
         //UIController.Singleton.BackButtonClick();
     }
@@ -79,7 +83,8 @@ public class TrainingController : MonoBehaviour
     private void StartRecording()
     {
         isRecording = true;
-        StartCoroutine(Record());
+        StartCoroutine(Countdown());
+        if (isContinuous) StartCoroutine(Record());
     }
 
     private void StopRecording()
@@ -90,17 +95,33 @@ public class TrainingController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.D)) {
+        if (! isRecording) {
+            return;
+        }
+        
+        if (Input.GetKeyDown(KeyCode.D) || Input.GetButtonDown("joystick button 0")) {
+            Debug.Log("D");
+            AddInput();
             AddOutput(0, 1.0f);
         }
 
-        if (Input.GetKeyDown(KeyCode.U)) {
+        if (Input.GetKeyDown(KeyCode.U) || Input.GetButtonDown("joystick button 3")) {
+            Debug.Log("U");
+            AddInput();
             AddOutput(1, 1.0f);
+        }
+
+        if (Input.GetKeyDown(KeyCode.N) || Input.GetButtonDown("joystick button 2")) {
+            Debug.Log("N");
+            AddInput();
+            AddOutput(2, 1.0f);
         }
     }
 
-    IEnumerator Record()
+    IEnumerator Countdown()
     {
+        isCountingDown = true;
+
         CountdownText.gameObject.SetActive(true);
 
         int currentTime = 10;
@@ -117,31 +138,43 @@ public class TrainingController : MonoBehaviour
 
         Animator.SetTrigger("Record");
 
+        isCountingDown = false;
+    }
+
+    IEnumerator Record()
+    {
+        yield return new WaitUntil(() => !isCountingDown);
+
         while(isRecording) {
-            List<float> poses = new List<float>();
-
-            // sp + dv = fp
-            //-sp       -sp
-            //      dv = fp -sp
-            Vector2 anchorOffset = new Vector2(MoveNetSinglePoseSample.poses[0].x - anchorPoint.x, MoveNetSinglePoseSample.poses[0].y - anchorPoint.y);
-
-            for (int i = 0; i < MoveNetSinglePoseSample.poses.Count; i++) {
-                //sp + dv = fp
-                //   - dv  -dv
-                //     sp = fp - dv
-                poses.Add(MoveNetSinglePoseSample.poses[i].x - anchorOffset.x);
-                poses.Add(MoveNetSinglePoseSample.poses[i].y - anchorOffset.y);
-                //poses.Add(MoveNetSinglePoseSample.poses[i].z);
-            }
-
-            TrainingDataInput tdi = new TrainingDataInput();
-            tdi.input = poses.ToArray();
-            TrainingData.input.Add(tdi);
+            AddInput();
 
             CountText.text = TrainingData.output.Count.ToString();
 
             yield return new WaitForSeconds(0.1f);
         }
+    }
+
+    private void AddInput()
+    {
+        List<float> poses = new List<float>();
+
+        // sp + dv = fp
+        //-sp       -sp
+        //      dv = fp -sp
+        Vector2 anchorOffset = new Vector2(MoveNetSinglePoseSample.poses[0].x - anchorPoint.x, MoveNetSinglePoseSample.poses[0].y - anchorPoint.y);
+
+        for (int i = 0; i < MoveNetSinglePoseSample.poses.Count; i++) {
+            //sp + dv = fp
+            //   - dv  -dv
+            //     sp = fp - dv
+            poses.Add(MoveNetSinglePoseSample.poses[i].x - anchorOffset.x);
+            poses.Add(MoveNetSinglePoseSample.poses[i].y - anchorOffset.y);
+            //poses.Add(MoveNetSinglePoseSample.poses[i].z);
+        }
+
+        TrainingDataInput tdi = new TrainingDataInput();
+        tdi.input = poses.ToArray();
+        TrainingData.input.Add(tdi);
     }
 
     private void AddAdditionalClassSampling()

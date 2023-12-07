@@ -1102,7 +1102,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &465624745
 Transform:
   m_ObjectHideFlags: 0
@@ -1543,7 +1543,19 @@ MonoBehaviour:
   requestFps: 24
   OnTextureUpdate:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1177754977}
+        m_TargetAssemblyTypeName: TensorFlowLite.CameraTextureBackground, TensorFlowLite.Common
+        m_MethodName: SetTexture
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!4 &601628396
 Transform:
   m_ObjectHideFlags: 0

@@ -454,9 +454,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1a3ce5c1e415f94d9a22ef0d0491af1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TestingController: {fileID: 1680836560}
   MoveNetSinglePoseSample: {fileID: 601628394}
-  NNModel: {fileID: 5022602860645237092, guid: 1a7765c44778edc4dbace09cafeb27a9, type: 3}
-  BarracudaPredictions: []
+  NNModel: {fileID: 5022602860645237092, guid: 8c4e09cc6d6945549b546edba87ce24c, type: 3}
 --- !u!4 &581395560
 Transform:
   m_ObjectHideFlags: 0
@@ -803,6 +803,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc8763e09fd4dbf49a497453ebc33cde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CountText: {fileID: 1820772671}
 --- !u!1 &1820772669
 GameObject:
   m_ObjectHideFlags: 0

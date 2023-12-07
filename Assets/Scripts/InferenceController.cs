@@ -9,6 +9,9 @@ using Unity.Barracuda;
 public class InferenceController : MonoBehaviour
 {
     [SerializeField]
+    private TestingController TestingController;
+
+    [SerializeField]
     private MoveNetSinglePoseSample MoveNetSinglePoseSample;
 
     [SerializeField]
@@ -23,8 +26,9 @@ public class InferenceController : MonoBehaviour
     private Vector2 anchorPoint = new Vector2(0.5f, 0.1f);
 
     private const int TOTAL_CLASSES = 3;
-    public float[][] Inputs;
-    public float[] BarracudaPredictions;
+    private const float THRESHOLD = 0.7f;
+    private bool switcher;
+    private int count;
 
     // Start is called before the first frame update
     void Start()
@@ -39,15 +43,19 @@ public class InferenceController : MonoBehaviour
     {
         float[][] rp = recentPoses.ToArray();
 
-        Tensor inputs = new Tensor(1, 1, 34, 8, rp); 
+        int channels = 1;//8;
+        Tensor inputs = new Tensor(1, 1, 34, channels, rp); 
         BarracudaWorker.Execute(inputs);
         Tensor output = BarracudaWorker.PeekOutput();
 
-        if (output[0] > output[1] && output[0] > output[2]) {
+        if (! switcher && output[0] >= THRESHOLD && output[0] > output[1] && output[0] > output[2]) {
             Debug.Log("D");
-        }
-        if (output[1] > output[0] && output[1] > output[2]) {
+            switcher = true;
+        } else if (switcher && output[1] >= THRESHOLD && output[1] > output[0] && output[1] > output[2]) {
             Debug.Log("U");
+            switcher = false;
+            count++;
+            TestingController.SetCountText(count);
         }
 
         inputs.Dispose();

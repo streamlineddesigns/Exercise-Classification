@@ -9,9 +9,6 @@ EditorBuildSettings:
     path: Assets/Scenes/Home.unity
     guid: 0e7cbf67e93089d4bb8830ea4835eefc
   - enabled: 1
-    path: Assets/Scenes/Training.unity
-    guid: c65199e12536fc640987e2f092608b65
-  - enabled: 1
     path: Assets/Scenes/Testing.unity
     guid: ad5a1c96dbebce147adba2f417b58328
   m_configObjects: {}

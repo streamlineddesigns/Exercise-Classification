@@ -157,6 +157,7 @@ PlayerSettings:
   applicationIdentifier:
     Android: com.MobileGamingCompany.Movement
     Standalone: com.DefaultCompany.Move
+    iPhone: com.MobileGamingCompany.Movement
   buildNumber:
     Standalone: 0
     iPhone: 0
