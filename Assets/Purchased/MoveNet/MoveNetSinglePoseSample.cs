@@ -21,6 +21,8 @@ public class MoveNetSinglePoseSample : MonoBehaviour
 
     [SerializeField, Range(0, 1)]
     private float threshold = 0.3f;
+    
+    private WebCamInput webCamInput;
 
     private MoveNetSinglePose moveNet;
     private MoveNetPose pose;
@@ -36,16 +38,22 @@ public class MoveNetSinglePoseSample : MonoBehaviour
 
         cancellationToken = this.GetCancellationTokenOnDestroy();
 
-        var webCamInput = GetComponent<WebCamInput>();
+        webCamInput = GetComponent<WebCamInput>();
         webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);
     }
 
     private void OnDestroy()
     {
-        var webCamInput = GetComponent<WebCamInput>();
         webCamInput.OnTextureUpdate.RemoveListener(OnTextureUpdate);
         moveNet?.Dispose();
         drawer?.Dispose();
+    }
+
+    public void ToggleCamera()
+    {
+        if (this.enabled) {
+            webCamInput.ToggleCamera();
+        }
     }
 
     public MoveNetPose GetPose()
@@ -56,7 +64,6 @@ public class MoveNetSinglePoseSample : MonoBehaviour
     public void CleanUp()
     {
         runBackground = false;
-        var webCamInput = GetComponent<WebCamInput>();
         webCamInput.OnTextureUpdate.RemoveListener(OnTextureUpdate);
     }
 
