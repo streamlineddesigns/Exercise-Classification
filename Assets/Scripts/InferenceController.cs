@@ -18,7 +18,10 @@ public class InferenceController : MonoBehaviour
     private Queue<float[]> recentPoses = new Queue<float[]>(8);
 
     [SerializeField]
-    private NNModel NNModel;
+    private NNModel JNNModel;
+
+    [SerializeField]
+    private NNModel PNNModel;
 
     private Unity.Barracuda.Model runtimeNNModel;
     private Unity.Barracuda.IWorker BarracudaWorker;
@@ -30,16 +33,40 @@ public class InferenceController : MonoBehaviour
     private bool switcher;
     private int count;
 
-    // Start is called before the first frame update
-    void Start()
+    protected void OnEnable()
     {
-        runtimeNNModel = ModelLoader.Load(NNModel);
+        EventPublisher.OnNetworkChange += OnNetworkChange;
+    }
+
+    protected void OnDisable()
+    {
+        EventPublisher.OnNetworkChange -= OnNetworkChange;
+    }
+
+    private void OnNetworkChange(string name)
+    {
+        if (isRunning) {
+            return;
+        }
+
+        switch(name) {
+            case "J" :
+                runtimeNNModel = ModelLoader.Load(JNNModel);
+                Debug.Log("J");
+                break;
+
+            case "P" :
+                runtimeNNModel = ModelLoader.Load(PNNModel);
+                Debug.Log("P");
+                break;
+        }
+        
         BarracudaWorker = WorkerFactory.CreateWorker(runtimeNNModel, WorkerFactory.Device.CPU);
         isRunning = true;
         StartCoroutine(Run());
     }
 
-    public void ForwardPass()
+    private void ForwardPass()
     {
         float[][] rp = recentPoses.ToArray();
 
