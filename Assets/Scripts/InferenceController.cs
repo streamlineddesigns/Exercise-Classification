@@ -29,9 +29,12 @@ public class InferenceController : MonoBehaviour
     private Vector2 anchorPoint = new Vector2(0.5f, 0.1f);
 
     private const int TOTAL_CLASSES = 3;
-    private const float THRESHOLD = 0.7f;
+    private const float THRESHOLD = 0.6f;
+    private const float MIDDLE_THRESHOLD = 0.3f;
     private bool switcher;
+    private bool middle;
     private int count;
+    private int timesteps = 1;
 
     protected void OnEnable()
     {
@@ -70,17 +73,29 @@ public class InferenceController : MonoBehaviour
     {
         float[][] rp = recentPoses.ToArray();
 
-        int channels = 1;//8;
+        int channels = timesteps;//8;
         Tensor inputs = new Tensor(1, 1, 34, channels, rp); 
         BarracudaWorker.Execute(inputs);
         Tensor output = BarracudaWorker.PeekOutput();
 
-        if (! switcher && output[0] >= THRESHOLD && output[0] > output[1] && output[0] > output[2]) {
+        /*if (switcher && middle && output[0] >= THRESHOLD && output[0] > output[1] && output[0] > output[2]) {
+            switcher = false;
+            middle = false;
+        }*/
+
+        if (output[2] >= 0.5f || MoveNetSinglePoseSample.poses.Count(x => x.z >= 0.5f) <= 8) {
+            Debug.Log("N");
+        } else if (! switcher && output[0] >= THRESHOLD && output[0] > output[1] && output[0] > output[2]) {
             Debug.Log("D");
             switcher = true;
-        } else if (switcher && output[1] >= THRESHOLD && output[1] > output[0] && output[1] > output[2]) {
+
+        } else if (switcher && !middle && output[1] >= MIDDLE_THRESHOLD && output[1] > output[0] && output[1] > output[2]) {
+            Debug.Log("M");
+            middle = true;
+        } else if (switcher && middle && output[1] >= THRESHOLD && output[1] > output[0] && output[1] > output[2]) {
             Debug.Log("U");
             switcher = false;
+            middle = false;
             count++;
             TestingController.SetCountText(count);
         }
@@ -106,12 +121,12 @@ public class InferenceController : MonoBehaviour
                 poses.Add(MoveNetSinglePoseSample.poses[i].y - anchorOffset.y);
             }
 
-            if (recentPoses.Count == 8) {
+            if (recentPoses.Count == timesteps) {
                 recentPoses.Dequeue(); 
             }
             recentPoses.Enqueue(poses.ToArray());
 
-            if (recentPoses.Count == 8) {
+            if (recentPoses.Count == timesteps) {
                 ForwardPass();
             }
 

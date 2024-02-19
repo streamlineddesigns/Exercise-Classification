@@ -12,6 +12,7 @@ public class HomeController : MonoBehaviour
     
     public void TestButtonClick()
     {
-        SceneManager.LoadScene("Testing");
+        //SceneManager.LoadScene("Testing");
+        SceneManager.LoadScene("Updated");
     }
 }

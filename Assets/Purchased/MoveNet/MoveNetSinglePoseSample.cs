@@ -11,6 +11,9 @@ public class MoveNetSinglePoseSample : MonoBehaviour
     public List<Vector3> poses = new List<Vector3>(17);
 
     [SerializeField]
+    private bool isDebugOn = false;
+
+    [SerializeField]
     MoveNetSinglePose.Options options = default;
 
     [SerializeField]
@@ -71,7 +74,7 @@ public class MoveNetSinglePoseSample : MonoBehaviour
     {
         if (pose != null)
         {
-            drawer.DrawPose(pose, threshold);
+            if (isDebugOn) drawer.DrawPose(pose, threshold);
             
             for (int i = 0; i < pose.Length; i++)
             {
