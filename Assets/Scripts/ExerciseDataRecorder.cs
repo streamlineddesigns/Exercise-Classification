@@ -39,7 +39,7 @@ public class ExerciseDataRecorder : MonoBehaviour
 
     public void Record()
     {
-        //isRecording = true;
+        isRecording = true;
         exerciseNameText.gameObject.SetActive(false);
         recordButton.SetActive(false);
         saveButton.SetActive(true);
@@ -71,7 +71,7 @@ public class ExerciseDataRecorder : MonoBehaviour
         StartPositionText.gameObject.SetActive(true);
         int secondsToWait = 5;
         
-        yield return StartCoroutine(WaitForSeconds(5));
+        yield return StartCoroutine(WaitForSeconds(10));
         
         Capture(true);
         ScreenshotImage.DOFade(1.0f, 0.25f).OnComplete(() => {
@@ -83,7 +83,7 @@ public class ExerciseDataRecorder : MonoBehaviour
         StartPositionText.gameObject.SetActive(false);
         EndPositionText.gameObject.SetActive(true);
 
-        yield return StartCoroutine(WaitForSeconds(5));
+        yield return StartCoroutine(WaitForSeconds(10));
 
         Capture(false);
         ScreenshotImage.DOFade(1.0f, 0.25f).OnComplete(() => {
@@ -104,23 +104,6 @@ public class ExerciseDataRecorder : MonoBehaviour
         }
 
         CountDownText.gameObject.SetActive(false);
-    }
-
-    private void Update()
-    {
-        if (! isRecording) {
-            return;
-        }
-            
-        if (Input.GetKeyDown(KeyCode.S) || Input.GetButtonDown("joystick button 0")) {
-            Debug.Log("S");
-            Capture(true);
-        }
-
-        if (Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown("joystick button 3")) {
-            Debug.Log("E");
-            Capture(false);
-        }
     }
 
     private void Capture(bool isStartPosition)
