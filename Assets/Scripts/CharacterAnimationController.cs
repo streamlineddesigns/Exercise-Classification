@@ -60,11 +60,11 @@ namespace TensorFlowLite.MoveNet {
             int len = connections.GetLength(0);
 
             for (int i = 0; i < joints.Length; i++) {
-                Vector2 anchorOffset = new Vector2(MoveNetSinglePoseSample.poses[0].x - anchorPoint.x, MoveNetSinglePoseSample.poses[0].y - anchorPoint.y);
+                
                 Vector3 startPosition = Vector3.zero;
 
-                startPosition.x = MoveNetSinglePoseSample.poses[i].x - anchorOffset.x;
-                startPosition.y = MoveNetSinglePoseSample.poses[i].y - anchorOffset.y;
+                startPosition.x = MoveNetSinglePoseSample.resampledPoses[i].x;
+                startPosition.y = MoveNetSinglePoseSample.resampledPoses[i].y;
 
                 Vector3 position = MathTF.Lerp(min, max, new Vector3(startPosition.x, 1f - startPosition.y, 0));
                 joints[i].transform.position = position;

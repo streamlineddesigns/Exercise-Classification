@@ -108,22 +108,7 @@ public class ExerciseDataRecorder : MonoBehaviour
 
     private void Capture(bool isStartPosition)
     {
-        float[] poses = new float[MoveNetSinglePoseSample.poses.Count];
-
-        // sp + dv = fp
-        //-sp       -sp
-        //      dv = fp -sp
-        Vector2 anchorOffset = new Vector2(MoveNetSinglePoseSample.poses[0].x - anchorPoint.x, MoveNetSinglePoseSample.poses[0].y - anchorPoint.y);
-
-        for (int i = 0; i < MoveNetSinglePoseSample.poses.Count; i++) {
-            //sp + dv = fp
-            //   - dv  -dv
-            //     sp = fp - dv
-            poses[i] = MoveNetSinglePoseSample.poses[i].x - anchorOffset.x;
-            poses[i] = MoveNetSinglePoseSample.poses[i].y - anchorOffset.y;
-        }
-
-        AddExercise(exerciseNameText.text, poses, isStartPosition);
+        AddExercise(exerciseNameText.text, MoveNetSinglePoseSample.currentPoses, isStartPosition);
     }
 
     private void AddExercise(string exerciseName, float[] data, bool isStartPosition)

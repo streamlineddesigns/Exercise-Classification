@@ -79,8 +79,8 @@ public class ExerciseDataInferenceController : MonoBehaviour
             if (MoveNetSinglePoseSample.poses.Count(x => x.z >= 0.3f) <= 5) {
 
             } else if (switcher) {
-                float startDistance = GetDistance(poses, startPosition);
-                float endDistance = GetDistance(poses, endPosition);
+                float startDistance = VectorUtils.GetDistance(poses, startPosition);
+                float endDistance = VectorUtils.GetDistance(poses, endPosition);
                 if (startDistance < NEARBY_THRESHOLD && FARAWAY_THRESHOLD < endDistance) {
                     if (Mathf.Abs(Time.time - countTime) >= 0.05f) {
                         countTime = Time.time;
@@ -88,9 +88,9 @@ public class ExerciseDataInferenceController : MonoBehaviour
                     }
                 }
             } else if (! switcher && !middle) {
-                float startDistance = GetDistance(poses, startPosition);
-                float endDistance = GetDistance(poses, endPosition);
-                float centroidDistance = GetDistance(poses, centroid);
+                float startDistance = VectorUtils.GetDistance(poses, startPosition);
+                float endDistance = VectorUtils.GetDistance(poses, endPosition);
+                float centroidDistance = VectorUtils.GetDistance(poses, centroid);
                 if (centroidDistance < NEARBY_THRESHOLD && MIDDLE_THRESHOLD < endDistance && MIDDLE_THRESHOLD < startDistance) {
                     if (Mathf.Abs(Time.time - countTime) >= 0.05f) {
                         countTime = Time.time;
@@ -99,8 +99,8 @@ public class ExerciseDataInferenceController : MonoBehaviour
                     }
                 }
             } else if (! switcher && middle) {
-                float startDistance = GetDistance(poses, startPosition);
-                float endDistance = GetDistance(poses, endPosition);
+                float startDistance = VectorUtils.GetDistance(poses, startPosition);
+                float endDistance = VectorUtils.GetDistance(poses, endPosition);
                 if (endDistance < NEARBY_THRESHOLD && FARAWAY_THRESHOLD < startDistance) {
                     if (Mathf.Abs(Time.time - countTime) >= 0.05f) {
                         countTime = Time.time;
@@ -137,20 +137,20 @@ public class ExerciseDataInferenceController : MonoBehaviour
                 currentPoses[i] = MoveNetSinglePoseSample.poses[i].y - anchorOffset.y;
             }
 
-            float[] dir = GetDirection(previousPoses, currentPoses);
-            float[] normDir = NormalizeDirection(dir);
+            float[] dir = VectorUtils.GetDirection(previousPoses, currentPoses);
+            float[] normDir = VectorUtils.NormalizeDirection(dir);
 
-            float[] StartToEndDir = GetDirection(startPosition, endPosition);
-            float[] StartToEndNormDir = NormalizeDirection(StartToEndDir);
+            float[] StartToEndDir = VectorUtils.GetDirection(startPosition, endPosition);
+            float[] StartToEndNormDir = VectorUtils.NormalizeDirection(StartToEndDir);
 
-            float[] EndToStartDir = GetDirection(endPosition, startPosition);
-            float[] EndToStartNormDir = NormalizeDirection(EndToStartDir);
+            float[] EndToStartDir = VectorUtils.GetDirection(endPosition, startPosition);
+            float[] EndToStartNormDir = VectorUtils.NormalizeDirection(EndToStartDir);
 
-            float startToEndDistance = GetDistance(dir, StartToEndDir);
-            float endToStartDistance = GetDistance(dir, EndToStartDir);
+            float startToEndDistance = VectorUtils.GetDistance(dir, StartToEndDir);
+            float endToStartDistance = VectorUtils.GetDistance(dir, EndToStartDir);
 
-            float startToEndNormDistance = GetDistance(normDir, StartToEndNormDir);
-            float endToStartNormDistance = GetDistance(normDir, EndToStartNormDir);
+            float startToEndNormDistance = VectorUtils.GetDistance(normDir, StartToEndNormDir);
+            float endToStartNormDistance = VectorUtils.GetDistance(normDir, EndToStartNormDir);
 
             float distanceThresholdForTravelingInADirection = startToEndDistance * 0.1f;
 
@@ -168,7 +168,7 @@ public class ExerciseDataInferenceController : MonoBehaviour
                             Array.Copy(currentPoses, startPoses, MoveNetSinglePoseSample.poses.Count);
                         }
 
-                        if (GetDistance(startPoses, currentPoses) >= distanceThresholdForTravelingInADirection) {
+                        if (VectorUtils.GetDistance(startPoses, currentPoses) >= distanceThresholdForTravelingInADirection) {
                             Debug.Log(count);
                             count++;
                             CountText.text = count.ToString();
@@ -193,7 +193,7 @@ public class ExerciseDataInferenceController : MonoBehaviour
                             Array.Copy(currentPoses, endPoses, MoveNetSinglePoseSample.poses.Count);
                         }
 
-                        if (GetDistance(endPoses, currentPoses) >= distanceThresholdForTravelingInADirection) {
+                        if (VectorUtils.GetDistance(endPoses, currentPoses) >= distanceThresholdForTravelingInADirection) {
                             switcher = false;
                             startSet = false;
                             endSet = false;
@@ -210,48 +210,38 @@ public class ExerciseDataInferenceController : MonoBehaviour
 
     IEnumerator ListenForBoth()
     {
-        previousPoses = new float[MoveNetSinglePoseSample.poses.Count];
-        currentPoses = new float[MoveNetSinglePoseSample.poses.Count];
-        startPoses = new float[MoveNetSinglePoseSample.poses.Count];
-        endPoses = new float[MoveNetSinglePoseSample.poses.Count];
+        startPoses = new float[MoveNetSinglePoseSample.poses.Count * 2];
 
         int StartToEndCount = 0;
         int EndToStartCount = 0;
         //dv = fp -sp
         while(isTrying) {
-            Array.Copy(currentPoses, previousPoses, MoveNetSinglePoseSample.poses.Count);
-            currentPoses = new float[MoveNetSinglePoseSample.poses.Count];
-            Vector2 anchorOffset = new Vector2(MoveNetSinglePoseSample.poses[0].x - anchorPoint.x, MoveNetSinglePoseSample.poses[0].y - anchorPoint.y);
+            float[] dir = VectorUtils.GetDirection(MoveNetSinglePoseSample.previousPoses, MoveNetSinglePoseSample.currentPoses);
+            float[] normDir = VectorUtils.NormalizeDirection(dir);
 
-            for (int i = 0; i < MoveNetSinglePoseSample.poses.Count; i++) {
-                currentPoses[i] = MoveNetSinglePoseSample.poses[i].x - anchorOffset.x;
-                currentPoses[i] = MoveNetSinglePoseSample.poses[i].y - anchorOffset.y;
-            }
+            float[] StartToEndDir = VectorUtils.GetDirection(startPosition, endPosition);
+            float[] StartToEndNormDir = VectorUtils.NormalizeDirection(StartToEndDir);
 
-            float[] dir = GetDirection(previousPoses, currentPoses);
-            float[] normDir = NormalizeDirection(dir);
+            float[] EndToStartDir = VectorUtils.GetDirection(endPosition, startPosition);
+            float[] EndToStartNormDir = VectorUtils.NormalizeDirection(EndToStartDir);
 
-            float[] StartToEndDir = GetDirection(startPosition, endPosition);
-            float[] StartToEndNormDir = NormalizeDirection(StartToEndDir);
+            float startToEndDistance = VectorUtils.GetDistance(dir, StartToEndDir);
+            float endToStartDistance = VectorUtils.GetDistance(dir, EndToStartDir);
 
-            float[] EndToStartDir = GetDirection(endPosition, startPosition);
-            float[] EndToStartNormDir = NormalizeDirection(EndToStartDir);
+            float startToEndNormDistance = VectorUtils.GetDistance(normDir, StartToEndNormDir);
+            float endToStartNormDistance = VectorUtils.GetDistance(normDir, EndToStartNormDir);
 
-            float startToEndDistance = GetDistance(dir, StartToEndDir);
-            float endToStartDistance = GetDistance(dir, EndToStartDir);
+            float distanceThresholdForTravelingInADirection = startToEndDistance * 0.1f;
 
-            float startToEndNormDistance = GetDistance(normDir, StartToEndNormDir);
-            float endToStartNormDistance = GetDistance(normDir, EndToStartNormDir);
-
-            float distanceThresholdForTravelingInADirection = startToEndDistance * 0.05f;
+            float currentPoseStartDistance = VectorUtils.GetDistance(MoveNetSinglePoseSample.currentPoses, startPosition);
+            float currentPoseEndDistance = VectorUtils.GetDistance(MoveNetSinglePoseSample.currentPoses, endPosition);
 
             if (MoveNetSinglePoseSample.poses.Count(x => x.z >= 0.3f) <= 5) {
 
             } else {
                 if (switcher) {
-                    float currentPoseStartDistance = GetDistance(currentPoses, startPosition);
-                    float currentPoseEndDistance = GetDistance(currentPoses, endPosition);
-                    if (currentPoseStartDistance < 0.5f && currentPoseStartDistance < currentPoseEndDistance) {
+                    //look for similarity between current pose and start position of exercise
+                    if (currentPoseStartDistance < 0.5f && currentPoseStartDistance + 0.1f < currentPoseEndDistance) {
                         if (Mathf.Abs(Time.time - countTime) >= 0.0333f) {
                             countTime = Time.time;
                             switcher = false;
@@ -260,11 +250,9 @@ public class ExerciseDataInferenceController : MonoBehaviour
                     }
                 }
                 
-                                           //this might never be triggered in slow movements because startToEndDistance is a dissimilarity score between 2 directional vectors..
-                                           //in slow movements, directional vectors become almost nonexistent
-                                           //so it'll essentially always high dissimilarity
-                                           //might just need a way to bypass this after it's initally verified, and then check if the distance exceeds the threshold
-                if (! switcher && !middle && startToEndDistance <= 0.3f && 0.3f < endToStartDistance) {
+                //this might never be triggered in slow movements because startToEndDistance is a dissimilarity score between 2 directional vectors..
+                //look for similarity in direction of poses and direction of start to end positions in the exercise
+                if (! switcher && !middle && startToEndDistance <= 0.5f && startToEndDistance + 0.1f < endToStartDistance) {
                     StartToEndCount++;
                     //Debug.Log(StartToEndCount);
                     if (Mathf.Abs(Time.time - countTime) >= 0.0333f) {
@@ -272,20 +260,18 @@ public class ExerciseDataInferenceController : MonoBehaviour
                     
                         if (! startSet) {
                             startSet = true;
-                            Array.Copy(currentPoses, startPoses, MoveNetSinglePoseSample.poses.Count);
+                            Array.Copy(MoveNetSinglePoseSample.currentPoses, startPoses, MoveNetSinglePoseSample.poses.Count);
                         }
 
-                        if (GetDistance(startPoses, currentPoses) >= distanceThresholdForTravelingInADirection) {
+                        if (VectorUtils.GetDistance(startPoses, MoveNetSinglePoseSample.currentPoses) >= distanceThresholdForTravelingInADirection) {
                             middle = true;
-                            startSet = false;
                         }
                     }
                 }
 
                 if (! switcher && middle) {
-                    float currentPoseStartDistance = GetDistance(currentPoses, startPosition);
-                    float currentPoseEndDistance = GetDistance(currentPoses, endPosition);
-                    if (currentPoseEndDistance < 0.5f && currentPoseEndDistance < currentPoseStartDistance) {
+                    //look for similarity between current pose and end position of exercise
+                    if (currentPoseEndDistance < 0.5f && currentPoseEndDistance + 0.1f < currentPoseStartDistance) {
                         if (Mathf.Abs(Time.time - countTime) >= 0.0333f) {
                             countTime = Time.time;
                             Debug.Log(count);
@@ -305,77 +291,6 @@ public class ExerciseDataInferenceController : MonoBehaviour
         }
     }
 
-    float[] GetDirection(float[] point1, float[] point2) {
-        // Array for direction vector
-        float[] direction = new float[point1.Length];
-        
-        // Calculate difference using loops 
-        for (int i = 0; i < point1.Length; i++) {
-            direction[i] = point2[i] - point1[i];
-        }
-        
-        return direction;
-    }
-
-    float[] NormalizeDirection(float[] direction) {
-        // Result array
-        float[] normDirection = new float[direction.Length];
-        
-        // Get magnitude
-        float magnitude = 0;
-        for (int i = 0; i < direction.Length; i++) {
-            magnitude += direction[i] * direction[i]; 
-        }
-        magnitude = (float)Math.Sqrt(magnitude);
-        
-        // Normalize using loops
-        for (int i = 0; i < 3; i++) {
-            normDirection[i] = direction[i] / magnitude;
-        }
-        
-        return normDirection;
-    }
-
-
-    public float GetDistance(float[] p1, float[] p2)
-    {
-        float distance = 0;
-
-        if (p1.Length != p2.Length) {
-            Debug.LogError("Input vectors must be of equal length");
-        }
-
-        for (int i = 0; i < p1.Length; i++) {
-            float a = p1[i] - p2[i];
-            distance += (float) (a * a);
-        }
-
-        return (float)Mathf.Sqrt(distance);
-    }
-
-    public float[] GetCentroid(float[][] data)
-    {
-        if ((data.Select(x => x.Length).Sum() / data.Length != data[0].Length)) {
-            Debug.LogError("Input vectors must be of equal length");
-        }
-
-        float[] centroid = new float[data[0].Length];
-        float[] counter = new float[data[0].Length];
-
-        for (int i = 0; i < data.Length; i++) {
-            for (int j = 0; j < centroid.Length; j++) {
-                centroid[j] += data[i][j];
-                counter[j]++;
-            }
-        }
-
-        for (int k = 0; k < centroid.Length; k++) {
-            centroid[k] /= counter[k];
-        }
-
-        return centroid;
-    }
-
     public void Try()
     {
         isTrying = true;
@@ -390,7 +305,7 @@ public class ExerciseDataInferenceController : MonoBehaviour
         List<float[]> centroidList = new List<float[]>();
         centroidList.Add(startPosition);
         centroidList.Add(endPosition);
-        centroid = GetCentroid(centroidList.ToArray());
+        centroid = VectorUtils.GetCentroid(centroidList.ToArray());
         Debug.Log(exerciseNameDropdown.options[exerciseNameDropdown.value].text);
         CurrentExerciseNameText.text = exerciseNameDropdown.options[exerciseNameDropdown.value].text;
         CurrentExerciseNameText.gameObject.SetActive(true);
