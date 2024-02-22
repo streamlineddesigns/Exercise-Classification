@@ -17,6 +17,7 @@ public class ExerciseDataInferenceController : MonoBehaviour
     [SerializeField] private TMP_Text CurrentExerciseNameText;
     [SerializeField] private ExerciseDataRecorder ExerciseDataRecorder;
     [SerializeField] private MoveNetSinglePoseSample MoveNetSinglePoseSample;
+    [SerializeField] private MLPInferenceController MLPInferenceController;
 
     private bool isTrying;
     private Vector2 anchorPoint = new Vector2(0.5f, 0.1f);
@@ -236,7 +237,7 @@ public class ExerciseDataInferenceController : MonoBehaviour
             float currentPoseStartDistance = VectorUtils.GetDistance(MoveNetSinglePoseSample.currentPoses, startPosition);
             float currentPoseEndDistance = VectorUtils.GetDistance(MoveNetSinglePoseSample.currentPoses, endPosition);
 
-            if (MoveNetSinglePoseSample.poses.Count(x => x.z >= 0.3f) <= 5) {
+            if (MLPInferenceController.output[2] >= 0.5f || MoveNetSinglePoseSample.poses.Count(x => x.z >= 0.3f) <= 5) {
 
             } else {
                 if (switcher) {
