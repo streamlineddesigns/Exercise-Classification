@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -42,6 +43,8 @@ public class MoveNetSinglePoseSample : MonoBehaviour
 
     private UniTask<bool> task;
     private CancellationToken cancellationToken;
+    private Texture currentTexture;
+    private bool isInvoking;
 
     private void Start()
     {
@@ -55,6 +58,9 @@ public class MoveNetSinglePoseSample : MonoBehaviour
 
         currentPoses = new float[poses.Count * 2];
         previousPoses = new float[poses.Count * 2];
+
+        isInvoking = true;
+        StartCoroutine(Invoker());
     }
 
     private void OnDestroy()
@@ -84,16 +90,26 @@ public class MoveNetSinglePoseSample : MonoBehaviour
 
     private void OnTextureUpdate(Texture texture)
     {
-        if (runBackground)
-        {
-            if (task.Status.IsCompleted())
-            {
-                task = InvokeAsync(texture);
+        currentTexture = texture;
+    }
+
+    protected IEnumerator Invoker()
+    {
+        while(isInvoking) {
+
+            if (currentTexture == null) {
+                yield return new WaitForSeconds(0.1f);
+                continue;
             }
-        }
-        else
-        {
-            Invoke(texture);
+            if (runBackground) {
+                if (task.Status.IsCompleted()) {
+                    task = InvokeAsync(currentTexture);
+                }
+            } else {
+                Invoke(currentTexture);
+            }
+
+            yield return new WaitForSeconds(0.1f);
         }
     }
 
