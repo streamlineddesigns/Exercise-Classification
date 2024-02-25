@@ -237,7 +237,7 @@ public class ExerciseDataInferenceController : MonoBehaviour
             float currentPoseStartDistance = VectorUtils.GetDistance(MoveNetSinglePoseSample.currentPoses, startPosition);
             float currentPoseEndDistance = VectorUtils.GetDistance(MoveNetSinglePoseSample.currentPoses, endPosition);
 
-            if (MLPInferenceController.output[2] >= 0.5f || MoveNetSinglePoseSample.poses.Count(x => x.z >= 0.3f) <= 5) {
+            if (/*MLPInferenceController.output[2] >= 0.5f || */MoveNetSinglePoseSample.poses.Count(x => x.z >= 0.3f) <= 5) {
 
             } else {
                 if (switcher) {

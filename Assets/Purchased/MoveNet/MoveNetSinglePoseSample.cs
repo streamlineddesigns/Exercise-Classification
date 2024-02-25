@@ -14,12 +14,13 @@ public class MoveNetSinglePoseSample : MonoBehaviour
     
     public List<Vector3> translatedPoses;
     public List<Vector3> resampledPoses;
+    public Heatmap heatmap;
     public float[] previousPoses;
     public float[] currentPoses;
     public float[] poseDirection;
     public float[] normalizedPoseDirection;
     private Vector2 anchorPoint = new Vector2(0.5f, 0.1f);
-    
+
     [SerializeField]
     private bool isDebugOn = false;
 
@@ -143,6 +144,8 @@ public class MoveNetSinglePoseSample : MonoBehaviour
             translatedPoses = VectorUtils.TranslateRelativeToOffset(poses, anchorOffset);
             //calculate resampled poses so positions are equidistant
             resampledPoses = VectorUtils.ResampleToUniformMagnitude(translatedPoses);
+            //calculate heatmap
+            heatmap = VectorUtils.GetHeatMap(resampledPoses);
             //cache current, translated, resampled poses into a temp object
             List<float> tempPoses = new List<float>();
             for (int i = 0; i < resampledPoses.Count; i++) {

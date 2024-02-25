@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 
 # Read in the CSV file 
-df = pd.read_csv('data2.csv')
+df = pd.read_csv('MoveMLPTrainingData.csv')
 
 X = df.iloc[:,:-3].values
 Y = df.iloc[:,-3:].values 
@@ -55,4 +55,4 @@ true_classes_test = np.argmax(y_test, axis=1)
 print(classification_report(true_classes_test, pred_classes_test))
 
 # Export the model
-tf.saved_model.save(model, "saved_model_dir_2")
+tf.saved_model.save(model, "saved_mlp_model_dir")

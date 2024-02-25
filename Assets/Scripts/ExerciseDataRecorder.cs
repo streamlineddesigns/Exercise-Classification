@@ -69,21 +69,21 @@ public class ExerciseDataRecorder : MonoBehaviour
     IEnumerator RecordingAnimation()
     {
         StartPositionText.gameObject.SetActive(true);
-        int secondsToWait = 5;
+        int secondsToWait = 10;
         
-        yield return StartCoroutine(WaitForSeconds(10));
+        yield return StartCoroutine(WaitForSeconds(secondsToWait));
         
         Capture(true);
         ScreenshotImage.DOFade(1.0f, 0.25f).OnComplete(() => {
             ScreenshotImage.DOFade(0.0f, 0.25f);
         });
 
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(0.3f);
 
         StartPositionText.gameObject.SetActive(false);
         EndPositionText.gameObject.SetActive(true);
 
-        yield return StartCoroutine(WaitForSeconds(10));
+        yield return StartCoroutine(WaitForSeconds(secondsToWait));
 
         Capture(false);
         ScreenshotImage.DOFade(1.0f, 0.25f).OnComplete(() => {

@@ -7,6 +7,102 @@ using UnityEngine;
 
 public static class VectorUtils
 {
+    public static Heatmap GetHeatMap(List<Vector3> poses)
+    {
+        Heatmap heatmap = new Heatmap(28);
+
+        List<List<int>> connections = new List<List<int>>();
+
+        List<int> connectionOne = new List<int>() {
+            0,17
+        };
+
+        List<int> connectionTwo = new List<int>() {
+            5,6
+        };
+
+        List<int> connectionThree = new List<int>() {
+            5,7
+        };
+
+        List<int> connectionFour = new List<int>() {
+            6,8
+        };
+
+        List<int> connectionFive = new List<int>() {
+            7,9
+        };
+
+        List<int> connectionSix = new List<int>() {
+            8,10
+        };
+
+        List<int> connectionSeven = new List<int>() {
+            5,11
+        };
+
+        List<int> connectionEight = new List<int>() {
+            6,12
+        };
+
+        List<int> connectionNine = new List<int>() {
+            11,12
+        };
+
+        List<int> connectionTen = new List<int>() {
+            11,13
+        };
+
+        List<int> connectionEleven = new List<int>() {
+            12,14
+        };
+
+        List<int> connectionTwelve = new List<int>() {
+            13,15
+        };
+
+        List<int> connectionThirteen = new List<int>() {
+            14,16
+        };
+
+        List<int> connectionFourteen = new List<int>() {
+            5,12
+        };
+
+        List<int> connectionFifteen = new List<int>() {
+            6,11
+        };
+
+        connections.Add(connectionOne);
+        connections.Add(connectionTwo);
+        connections.Add(connectionThree);
+        connections.Add(connectionFour);
+        connections.Add(connectionFive);
+        connections.Add(connectionSix);
+        connections.Add(connectionSeven);
+        connections.Add(connectionEight);
+        connections.Add(connectionNine);
+        connections.Add(connectionTen);
+        connections.Add(connectionEleven);
+        connections.Add(connectionTwelve);
+        connections.Add(connectionThirteen);
+
+        //connections.Add(connectionFourteen);
+        //connections.Add(connectionFifteen);
+
+        float[] fiveFloat = new float[2] {poses[5].x, poses[5].y};
+        float[] sixFloat = new float[2] {poses[6].x, poses[6].y};
+        float[] FiveSixCentroidFloat = GetCentroid(new float[][]{fiveFloat, sixFloat});
+        Vector2 FiveSixCentroidVector2 = new Vector2(FiveSixCentroidFloat[0], FiveSixCentroidFloat[1]);
+
+        List<Vector2> positionsOfPoses = poses.Select(x => new Vector2(x.x, x.y)).ToList();
+        positionsOfPoses.Add(FiveSixCentroidVector2);
+
+        heatmap.AddPoints(positionsOfPoses, connections);
+
+        return heatmap;
+    }
+
     public static List<Vector3> TranslateRelativeToOffset(List<Vector3> poses, Vector3 offset)
     {
         List<Vector3> translatedPoses = new List<Vector3>();
@@ -18,7 +114,7 @@ public static class VectorUtils
         return translatedPoses;
     }
 
-    public static List<Vector3> ResampleToUniformMagnitude(List<Vector3> poses, float magnitude = 0.1f)
+    public static List<Vector3> ResampleToUniformMagnitude(List<Vector3> poses, float magnitude = 0.2f)
     {
         List<Vector3> resampledPoses = new List<Vector3>();
         

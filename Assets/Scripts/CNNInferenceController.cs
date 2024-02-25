@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Barracuda;
 
-public class MLPInferenceController : MonoBehaviour
+public class CNNInferenceController : MonoBehaviour
 {
     public Tensor output;
 
@@ -44,7 +44,7 @@ public class MLPInferenceController : MonoBehaviour
         int count = 0;
 
         while(isRunning) {
-
+            
             if (MoveNetSinglePoseSample.heatmap == null) {
                 yield return new WaitForSeconds(0.1f);
                 continue;
@@ -53,7 +53,6 @@ public class MLPInferenceController : MonoBehaviour
             heatmapVisual.SetHeatMapFlattened(MoveNetSinglePoseSample.heatmap);
 
             ForwardPass();
-
 
             if (! switcher && output[0] >= THRESHOLD && output[0] > output[1] && output[0] > output[2]) {
                 switcher = true;
@@ -72,7 +71,8 @@ public class MLPInferenceController : MonoBehaviour
 
     private void ForwardPass()
     {
-        Tensor inputs = new Tensor(1, 1, 34, 1, MoveNetSinglePoseSample.currentPoses); 
+        float[] imageRepresentation = MoveNetSinglePoseSample.heatmap.GetFlattenedHeatmap();
+        Tensor inputs = new Tensor(1, 28, 28, 1, imageRepresentation);
         BarracudaWorker.Execute(inputs);
         output = BarracudaWorker.PeekOutput();
         inputs.Dispose();

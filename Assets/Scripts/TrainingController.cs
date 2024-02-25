@@ -8,6 +8,13 @@ using TMPro;
 
 public class TrainingController : MonoBehaviour
 {
+    public bool isTrainingMLP = false;
+    public bool isTrainingCNN = false;
+
+    private string saveFileName = "MoveTrainingData.txt";
+
+    [SerializeField] private HeatmapVisual heatmapVisual;
+
     [SerializeField]
     private MoveNetSinglePoseSample MoveNetSinglePoseSample;
 
@@ -99,20 +106,20 @@ public class TrainingController : MonoBehaviour
             return;
         }
         
-        if (Input.GetKeyDown(KeyCode.D) || Input.GetButtonDown("joystick button 0")) {
-            Debug.Log("D");
+        if (Input.GetKeyDown(KeyCode.S) || Input.GetButtonDown("joystick button 0")) {
+            Debug.Log("start");
             AddInput();
             AddOutput(0, 1.0f);
         }
 
-        if (Input.GetKeyDown(KeyCode.U) || Input.GetButtonDown("joystick button 3")) {
-            Debug.Log("U");
+        if (Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown("joystick button 3")) {
+            Debug.Log("end");
             AddInput();
             AddOutput(1, 1.0f);
         }
 
-        if (Input.GetKeyDown(KeyCode.N) || Input.GetButtonDown("joystick button 2")) {
-            Debug.Log("N");
+        if (Input.GetKeyDown(KeyCode.F) || Input.GetButtonDown("joystick button 2")) {
+            Debug.Log("false positive");
             AddInput();
             AddOutput(2, 1.0f);
         }
@@ -156,25 +163,22 @@ public class TrainingController : MonoBehaviour
 
     private void AddInput()
     {
-        List<float> poses = new List<float>();
+        float[] imageRepresentation = MoveNetSinglePoseSample.heatmap.GetFlattenedHeatmap();
+        heatmapVisual.SetHeatMapFlattened(MoveNetSinglePoseSample.heatmap);
 
-        // sp + dv = fp
-        //-sp       -sp
-        //      dv = fp -sp
-        Vector2 anchorOffset = new Vector2(MoveNetSinglePoseSample.poses[0].x - anchorPoint.x, MoveNetSinglePoseSample.poses[0].y - anchorPoint.y);
-
-        for (int i = 0; i < MoveNetSinglePoseSample.poses.Count; i++) {
-            //sp + dv = fp
-            //   - dv  -dv
-            //     sp = fp - dv
-            poses.Add(MoveNetSinglePoseSample.poses[i].x - anchorOffset.x);
-            poses.Add(MoveNetSinglePoseSample.poses[i].y - anchorOffset.y);
-            //poses.Add(MoveNetSinglePoseSample.poses[i].z);
+        if (isTrainingMLP) {
+            TrainingDataInput tdi = new TrainingDataInput();
+            tdi.input = new float[MoveNetSinglePoseSample.currentPoses.Length];
+            Array.Copy(MoveNetSinglePoseSample.currentPoses, tdi.input, MoveNetSinglePoseSample.currentPoses.Length);
+            TrainingData.input.Add(tdi);
         }
 
-        TrainingDataInput tdi = new TrainingDataInput();
-        tdi.input = poses.ToArray();
-        TrainingData.input.Add(tdi);
+        if (isTrainingCNN) {
+            TrainingDataInput tdi = new TrainingDataInput();
+            tdi.input = new float[imageRepresentation.Length];
+            Array.Copy(imageRepresentation, tdi.input, imageRepresentation.Length);
+            TrainingData.input.Add(tdi);
+        }
     }
 
     private void AddAdditionalClassSampling()
@@ -206,7 +210,8 @@ public class TrainingController : MonoBehaviour
 
     private void SerializeTrainingData()
     {
-        string saveFilePath = Application.persistentDataPath + "/MoveTrainingData.txt";
+        string sfn = (isTrainingCNN) ? "MoveCNNTrainingData.csv" : "MoveMLPTrainingData.csv";
+        string saveFilePath = Application.persistentDataPath + "/" + sfn;
 
         using (StreamWriter writer = new StreamWriter(saveFilePath))  
         {
