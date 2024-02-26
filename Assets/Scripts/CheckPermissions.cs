@@ -40,6 +40,7 @@ public class CheckPermissions : MonoBehaviour
         }
     }
 
+#if UNITY_ANDROID
     IEnumerator CheckAndroidCameraPermissions()
     {
         while(! hasCameraPermissions) {
@@ -57,7 +58,9 @@ public class CheckPermissions : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
     }
+#endif
 
+#if UNITY_IOS
     IEnumerator CheckIOSCameraPermissions()
     {
         while(! hasCameraPermissions) {
@@ -75,4 +78,5 @@ public class CheckPermissions : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
     }
+#endif
 }
