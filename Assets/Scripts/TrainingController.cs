@@ -10,6 +10,7 @@ public class TrainingController : MonoBehaviour
 {
     public bool isTrainingMLP = false;
     public bool isTrainingCNN = false;
+    public bool isTrainingLSTM = false;
 
     private string saveFileName = "MoveTrainingData.txt";
 
@@ -62,7 +63,7 @@ public class TrainingController : MonoBehaviour
     public void SaveButtonClick()
     {
         StopRecording();
-        if (isContinuous) AddAdditionalClassSampling();
+        if (isContinuous || isTrainingLSTM) AddAdditionalClassSampling();
         SerializeTrainingData();
         //UIController.Singleton.BackButtonClick();
     }
@@ -91,7 +92,7 @@ public class TrainingController : MonoBehaviour
     {
         isRecording = true;
         StartCoroutine(Countdown());
-        if (isContinuous) StartCoroutine(Record());
+        if (isContinuous || isTrainingLSTM) StartCoroutine(Record());
     }
 
     private void StopRecording()
@@ -155,7 +156,7 @@ public class TrainingController : MonoBehaviour
         while(isRecording) {
             AddInput();
 
-            CountText.text = TrainingData.output.Count.ToString();
+            //CountText.text = TrainingData.output.Count.ToString();
 
             yield return new WaitForSeconds(0.1f);
         }
@@ -179,6 +180,26 @@ public class TrainingController : MonoBehaviour
             Array.Copy(imageRepresentation, tdi.input, imageRepresentation.Length);
             TrainingData.input.Add(tdi);
         }
+
+        if (isTrainingLSTM) {
+            TrainingDataInput tdi = new TrainingDataInput();
+
+            List<float> temp = new List<float>();
+            List<float> currentPosesTemp;
+            List<float> normalizedPoseDirectionTemp;
+
+            int vectorLength = MoveNetSinglePoseSample.currentPoses.Length + MoveNetSinglePoseSample.normalizedPoseDirection.Length;
+            tdi.input = new float[vectorLength];
+
+            currentPosesTemp = MoveNetSinglePoseSample.currentPoses.ToList();
+            normalizedPoseDirectionTemp = MoveNetSinglePoseSample.normalizedPoseDirection.ToList();
+
+            temp.AddRange(currentPosesTemp);
+            temp.AddRange(normalizedPoseDirectionTemp);
+
+            Array.Copy(temp.ToArray(), tdi.input, vectorLength);
+            TrainingData.input.Add(tdi);
+        }
     }
 
     private void AddAdditionalClassSampling()
@@ -190,11 +211,11 @@ public class TrainingController : MonoBehaviour
 
             if (tdo.Length != 0) {
 
-                int startIndex = i - 1;
+                int startIndex = i - 2;
                 int endIndex = i + 2;
 
                 for (int j = startIndex; j < endIndex; j++) {
-                    if (j != i) {
+                    if (j != i && j < TrainingData.input.Count) {
                         TrainingDataOutput tempTdo = new TrainingDataOutput();
                         tempTdo.output = new float[TOTAL_CLASSES];
                         tempTdo.index = j;
@@ -210,7 +231,7 @@ public class TrainingController : MonoBehaviour
 
     private void SerializeTrainingData()
     {
-        string sfn = (isTrainingCNN) ? "MoveCNNTrainingData.csv" : "MoveMLPTrainingData.csv";
+        string sfn = (isTrainingCNN) ? "MoveCNNTrainingData.csv" : (isTrainingMLP) ? "MoveMLPTrainingData.csv" : "MoveLSTMTrainingData.csv";
         string saveFilePath = Application.persistentDataPath + "/" + sfn;
 
         using (StreamWriter writer = new StreamWriter(saveFilePath))  

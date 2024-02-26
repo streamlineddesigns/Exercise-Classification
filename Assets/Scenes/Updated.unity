@@ -1875,6 +1875,7 @@ Transform:
   - {fileID: 789085855}
   - {fileID: 882345847}
   - {fileID: 127658614}
+  - {fileID: 1731470032}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &55553231
@@ -5047,7 +5048,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MoveNetSinglePoseSample: {fileID: 176077370}
   heatmapVisual: {fileID: 695668504}
-  NNModel: {fileID: 5022602860645237092, guid: 1fefe823206f91745b119c8045e8554e, type: 3}
+  NNModel: {fileID: 5022602860645237092, guid: 4cfba12e35679054283066f08c2de42d, type: 3}
 --- !u!1 &133610138
 GameObject:
   m_ObjectHideFlags: 0
@@ -6693,7 +6694,7 @@ MonoBehaviour:
   currentPoses: []
   poseDirection: []
   normalizedPoseDirection: []
-  isDebugOn: 0
+  isDebugOn: 1
   options:
     modelPath: lite-model_movenet_singlepose_lightning_tflite_float16_4.tflite
     aspectMode: 1
@@ -30939,7 +30940,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MoveNetSinglePoseSample: {fileID: 176077370}
   heatmapVisual: {fileID: 695668504}
-  NNModel: {fileID: 5022602860645237092, guid: a4d6f6b7e4c58f1488baed9b007e2080, type: 3}
+  NNModel: {fileID: 5022602860645237092, guid: dc4653ff9c0f3d34995d15c85327236b, type: 3}
 --- !u!1 &882421793
 GameObject:
   m_ObjectHideFlags: 0
@@ -59088,6 +59089,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1444809282}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1731470031
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1731470032}
+  - component: {fileID: 1731470033}
+  m_Layer: 0
+  m_Name: LSTMInferenceController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1731470032
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1731470031}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 50796382}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1731470033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1731470031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd8ec342665eed145a1a674b84b65bfb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MoveNetSinglePoseSample: {fileID: 176077370}
+  heatmapVisual: {fileID: 695668504}
+  NNModel: {fileID: 5022602860645237092, guid: f76928be65ef0f748a00ff096103a105, type: 3}
 --- !u!1 &1732958031
 GameObject:
   m_ObjectHideFlags: 0

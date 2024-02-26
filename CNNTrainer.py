@@ -28,8 +28,6 @@ model.add(MaxPooling2D((2, 2)))
 model.add(Flatten())
 model.add(Dense(64, activation='relu', kernel_regularizer=keras.regularizers.l2(0.001)))
 model.add(layers.Dropout(0.2))
-model.add(Dense(32, activation='relu', kernel_regularizer=keras.regularizers.l2(0.001)))
-model.add(layers.Dropout(0.2))
 model.add(Dense(Y.shape[1], activation='softmax'))
 # Compile the model
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])

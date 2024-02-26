@@ -29,15 +29,17 @@ X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2)
 
 # Build LSTM
 model = Sequential()
-model.add(LSTM(32, kernel_regularizer=keras.regularizers.l2(0.001), input_shape=(seq_length, X.shape[-1]), return_sequences=True))
+model.add(LSTM(64, kernel_regularizer=keras.regularizers.l2(0.001), input_shape=(seq_length, X.shape[-1]), return_sequences=True))
 model.add(layers.Dropout(0.2))
-model.add(LSTM(16, kernel_regularizer=keras.regularizers.l2(0.001)))
+model.add(LSTM(32, kernel_regularizer=keras.regularizers.l2(0.001)))
 model.add(layers.Dropout(0.2))
-model.add(Dense(Y.shape[-1], activation='softmax'))
+model.add(Dense(32, activation='relu', kernel_regularizer=keras.regularizers.l2(0.001)))
+model.add(layers.Dropout(0.2))
+model.add(Dense(Y.shape[1], activation='softmax'))
 
 # Compile and train
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
-model.fit(X_train, y_train, epochs=128, batch_size=32)
+model.fit(X_train, y_train, epochs=100, batch_size=64)
 
 #Model info
 print("_______________________________________________________________________")
