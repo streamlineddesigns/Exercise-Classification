@@ -4927,12 +4927,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44ca15c89cd4d3540a561612adafb298, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isTrainingMLP: 0
-  isTrainingCNN: 1
-  isTrainingLSTM: 0
   heatmapVisual: {fileID: 1074918885}
   MoveNetSinglePoseSample: {fileID: 601628394}
-  TrainingData:
+  MLPTrainingData:
+    input: []
+    output: []
+  LSTMTrainingData:
+    input: []
+    output: []
+  CNNTrainingData:
     input: []
     output: []
   CountdownText: {fileID: 429373349}

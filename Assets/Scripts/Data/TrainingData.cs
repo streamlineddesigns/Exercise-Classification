@@ -6,6 +6,6 @@ using UnityEngine;
 [Serializable]
 public class TrainingData
 {
-    public List<TrainingDataInput> input;
-    public List<TrainingDataOutput> output;
+    public List<TrainingDataInput> input = new List<TrainingDataInput>();
+    public List<TrainingDataOutput> output = new List<TrainingDataOutput>();
 }

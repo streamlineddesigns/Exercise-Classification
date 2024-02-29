@@ -8,28 +8,25 @@ using TMPro;
 
 public class TrainingController : MonoBehaviour
 {
-    public bool isTrainingMLP = false;
-    public bool isTrainingCNN = false;
-    public bool isTrainingLSTM = false;
-
-    private string saveFileName = "MoveTrainingData.txt";
-
     [SerializeField] private HeatmapVisual heatmapVisual;
 
     [SerializeField]
     private MoveNetSinglePoseSample MoveNetSinglePoseSample;
 
     [SerializeField]
-    private TrainingData TrainingData;
+    private TrainingData MLPTrainingData;
+
+    [SerializeField]
+    private TrainingData LSTMTrainingData;
+
+    [SerializeField]
+    private TrainingData CNNTrainingData;
 
     [SerializeField]
     private TMP_Text CountdownText;
 
     [SerializeField]
     private TMP_Text CountText;
-
-    [SerializeField]
-    private Animator Animator;
 
     [SerializeField]
     private GameObject SaveButton;
@@ -41,12 +38,7 @@ public class TrainingController : MonoBehaviour
 
     private bool isRecording;
 
-    private bool isContinuous = false;
-
     private bool isCountingDown;
-
-    private Vector2 anchorPoint = new Vector2(0.5f, 0.1f);
-
 
     public void BackButtonClick()
     {
@@ -56,43 +48,22 @@ public class TrainingController : MonoBehaviour
     public void RecordButtonClick()
     {
         if (! isRecording) {
-            StartRecording();
+            isRecording = true;
+            StartCoroutine(Countdown());
+            StartCoroutine(ListenForContinuousInput());
         }
     }
 
     public void SaveButtonClick()
     {
         StopRecording();
-        if (isContinuous || isTrainingLSTM) AddAdditionalClassSampling();
+        AddAdditionalLSTMClassSampling();
         SerializeTrainingData();
-        //UIController.Singleton.BackButtonClick();
     }
 
     public void DeleteButtonClick()
     {
         StopRecording();
-        //UIController.Singleton.BackButtonClick();
-    }
-
-    public void AddOutput(int classIndex, float value)
-    {
-        if (isRecording) {
-            float[] oneHotVector = new float[TOTAL_CLASSES]{0.0f, 0.0f, 0.0f};
-            oneHotVector[classIndex] = value * 1.0f;
-
-            TrainingDataOutput tdo = new TrainingDataOutput();
-            tdo.index = TrainingData.input.Count - 1;
-            tdo.output = new float[TOTAL_CLASSES];
-            Array.Copy(oneHotVector, tdo.output, TOTAL_CLASSES);
-            TrainingData.output.Add(tdo);
-        }
-    }
-
-    private void StartRecording()
-    {
-        isRecording = true;
-        StartCoroutine(Countdown());
-        if (isContinuous || isTrainingLSTM) StartCoroutine(Record());
     }
 
     private void StopRecording()
@@ -106,23 +77,40 @@ public class TrainingController : MonoBehaviour
         if (! isRecording) {
             return;
         }
+
+        int classIndex = 2;
+        float value = 1.0f;
         
         if (Input.GetKeyDown(KeyCode.S) || Input.GetButtonDown("joystick button 0")) {
-            Debug.Log("start");
-            AddInput();
-            AddOutput(0, 1.0f);
+            classIndex = 0;
+            value = 1.0f;
+            AddDiscreteInput();
+            AddOutput(classIndex, value);
         }
 
         if (Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown("joystick button 3")) {
-            Debug.Log("end");
-            AddInput();
-            AddOutput(1, 1.0f);
+            classIndex = 1;
+            value = 1.0f;
+            AddDiscreteInput();
+            AddOutput(classIndex, value);
+            CountText.text = (MLPTrainingData.input.Count / 2).ToString();
         }
 
         if (Input.GetKeyDown(KeyCode.F) || Input.GetButtonDown("joystick button 2")) {
-            Debug.Log("false positive");
-            AddInput();
-            AddOutput(2, 1.0f);
+            classIndex = 2;
+            value = 1.0f;
+            AddDiscreteInput();
+            AddOutput(classIndex, value);
+        }
+    }
+
+    IEnumerator ListenForContinuousInput()
+    {
+        yield return new WaitUntil(() => ! isCountingDown);
+
+        while (isRecording) {
+            AddContinuousInput();
+            yield return new WaitForSeconds(0.1f);
         }
     }
 
@@ -144,111 +132,118 @@ public class TrainingController : MonoBehaviour
         SaveButton.SetActive(true);
         DeleteButton.SetActive(true);
 
-        Animator.SetTrigger("Record");
-
         isCountingDown = false;
     }
 
-    IEnumerator Record()
+    private void AddDiscreteInput()
     {
-        yield return new WaitUntil(() => !isCountingDown);
-
-        while(isRecording) {
-            AddInput();
-
-            //CountText.text = TrainingData.output.Count.ToString();
-
-            yield return new WaitForSeconds(0.1f);
-        }
+        AddMLPInput();
+        AddCNNInput();
     }
 
-    private void AddInput()
+    private void AddContinuousInput()
+    {
+        AddLSTMInput();
+    }
+    
+    private void AddMLPInput()
+    {
+        TrainingDataInput tdi = new TrainingDataInput();
+        tdi.input = new float[MoveNetSinglePoseSample.currentPoses.Length];
+        Array.Copy(MoveNetSinglePoseSample.currentPoses, tdi.input, MoveNetSinglePoseSample.currentPoses.Length);
+        MLPTrainingData.input.Add(tdi);
+    }
+
+    private void AddLSTMInput()
+    {
+        TrainingDataInput tdi = new TrainingDataInput();
+
+        List<float> temp = new List<float>();
+        List<float> currentPosesTemp;
+        List<float> normalizedPoseDirectionTemp;
+
+        int vectorLength = MoveNetSinglePoseSample.currentPoses.Length + MoveNetSinglePoseSample.normalizedPoseDirection.Length;
+        tdi.input = new float[vectorLength];
+
+        currentPosesTemp = MoveNetSinglePoseSample.currentPoses.ToList();
+        normalizedPoseDirectionTemp = MoveNetSinglePoseSample.normalizedPoseDirection.ToList();
+
+        temp.AddRange(currentPosesTemp);
+        temp.AddRange(normalizedPoseDirectionTemp);
+
+        Array.Copy(temp.ToArray(), tdi.input, vectorLength);
+        LSTMTrainingData.input.Add(tdi);
+    }
+
+    private void AddCNNInput()
     {
         float[] imageRepresentation = MoveNetSinglePoseSample.heatmap.GetFlattenedHeatmap();
         heatmapVisual.SetHeatMapFlattened(MoveNetSinglePoseSample.heatmap);
 
-        if (isTrainingMLP) {
-            TrainingDataInput tdi = new TrainingDataInput();
-            tdi.input = new float[MoveNetSinglePoseSample.currentPoses.Length];
-            Array.Copy(MoveNetSinglePoseSample.currentPoses, tdi.input, MoveNetSinglePoseSample.currentPoses.Length);
-            TrainingData.input.Add(tdi);
-        }
-
-        if (isTrainingCNN) {
-            TrainingDataInput tdi = new TrainingDataInput();
-            tdi.input = new float[imageRepresentation.Length];
-            Array.Copy(imageRepresentation, tdi.input, imageRepresentation.Length);
-            TrainingData.input.Add(tdi);
-        }
-
-        if (isTrainingLSTM) {
-            TrainingDataInput tdi = new TrainingDataInput();
-
-            List<float> temp = new List<float>();
-            List<float> currentPosesTemp;
-            List<float> normalizedPoseDirectionTemp;
-
-            int vectorLength = MoveNetSinglePoseSample.currentPoses.Length + MoveNetSinglePoseSample.normalizedPoseDirection.Length;
-            tdi.input = new float[vectorLength];
-
-            currentPosesTemp = MoveNetSinglePoseSample.currentPoses.ToList();
-            normalizedPoseDirectionTemp = MoveNetSinglePoseSample.normalizedPoseDirection.ToList();
-
-            temp.AddRange(currentPosesTemp);
-            temp.AddRange(normalizedPoseDirectionTemp);
-
-            Array.Copy(temp.ToArray(), tdi.input, vectorLength);
-            TrainingData.input.Add(tdi);
-        }
+        TrainingDataInput tdi = new TrainingDataInput();
+        tdi.input = new float[imageRepresentation.Length];
+        Array.Copy(imageRepresentation, tdi.input, imageRepresentation.Length);
+        CNNTrainingData.input.Add(tdi);
     }
 
-    private void AddAdditionalClassSampling()
+    private void AddOutput(int classIndex, float value)
     {
-        List<TrainingDataOutput> tdos = new List<TrainingDataOutput>();
+        AddOutputByType(classIndex, value, ref MLPTrainingData);
+        AddOutputByType(classIndex, value, ref LSTMTrainingData);
+        AddOutputByType(classIndex, value, ref CNNTrainingData);
+    }
 
-        for (int i = 0; i < TrainingData.input.Count; i++) {
-            TrainingDataOutput[] tdo = TrainingData.output.Where(x => x.index == i).ToArray();
-
-            if (tdo.Length != 0) {
-
-                int startIndex = i - 2;
-                int endIndex = i + 2;
-
-                for (int j = startIndex; j < endIndex; j++) {
-                    if (j != i && j < TrainingData.input.Count) {
-                        TrainingDataOutput tempTdo = new TrainingDataOutput();
-                        tempTdo.output = new float[TOTAL_CLASSES];
-                        tempTdo.index = j;
-                        Array.Copy(tdo[0].output, tempTdo.output, TOTAL_CLASSES);
-                        tdos.Add(tempTdo);
-                    }
-                }
-            }
-        }
-
-        TrainingData.output.AddRange(tdos);
+    private void AddOutputByType(int classIndex, float value, ref TrainingData trainingData)
+    {
+        float[] oneHotVector = new float[TOTAL_CLASSES]{0.0f, 0.0f, 0.0f};
+        oneHotVector[classIndex] = value * 1.0f;
+        TrainingDataOutput tdo = new TrainingDataOutput();
+        tdo.output = new float[TOTAL_CLASSES];
+        tdo.index = trainingData.input.Count - 1;
+        Array.Copy(oneHotVector, tdo.output, TOTAL_CLASSES);
+        trainingData.output.Add(tdo);
     }
 
     private void SerializeTrainingData()
     {
-        string sfn = (isTrainingCNN) ? "MoveCNNTrainingData.csv" : (isTrainingMLP) ? "MoveMLPTrainingData.csv" : "MoveLSTMTrainingData.csv";
-        string saveFilePath = Application.persistentDataPath + "/" + sfn;
+        SerializeTrainingDataByType(InferenceType.MLP, ref MLPTrainingData);
+        SerializeTrainingDataByType(InferenceType.LSTM, ref LSTMTrainingData);
+        SerializeTrainingDataByType(InferenceType.CNN, ref CNNTrainingData);
+    }
+
+    private void SerializeTrainingDataByType(InferenceType inferenceType, ref TrainingData trainingData)
+    {
+        string saveFileName = "";
+
+        switch(inferenceType) {
+            case InferenceType.MLP :
+                saveFileName = "MoveMLPTrainingData.csv";
+                break;
+            case InferenceType.LSTM :
+                saveFileName = "MoveLSTMTrainingData.csv";
+                break;
+            case InferenceType.CNN :
+                saveFileName = "MoveCNNTrainingData.csv";
+                break;
+        }
+
+        string saveFilePath = Application.persistentDataPath + "/" + saveFileName;
 
         using (StreamWriter writer = new StreamWriter(saveFilePath))  
         {
-            for (int i = 0; i < TrainingData.input.Count; i++) {
+            for (int i = 0; i < trainingData.input.Count; i++) {
                 string writeString = "";
 
                 //comma seperated input values
-                for (int j = 0; j < TrainingData.input[i].input.Length; j++) {
-                    writeString += TrainingData.input[i].input[j] + ",";
+                for (int j = 0; j < trainingData.input[i].input.Length; j++) {
+                    writeString += trainingData.input[i].input[j] + ",";
                 }
 
                 //empty class
                 float[] emptyClass = new float[TOTAL_CLASSES]{0.0f,0.0f,1.0f};
 
                 //comma seperated output values
-                TrainingDataOutput[] tdo = TrainingData.output.Where(x => x.index == i).ToArray();
+                TrainingDataOutput[] tdo = trainingData.output.Where(x => x.index == i).ToArray();
                 float[] outputs = (tdo.Length == 0) ? emptyClass : tdo[0].output;
 
                 for (int k = 0; k < outputs.Length; k++) {
@@ -261,5 +256,37 @@ public class TrainingController : MonoBehaviour
         }
 
         Debug.Log("Save file path: " + saveFilePath);
+    }
+
+    private void AddAdditionalLSTMClassSampling()
+    {
+        List<TrainingDataOutput> tdos = new List<TrainingDataOutput>();
+
+        for (int i = 0; i < LSTMTrainingData.input.Count; i++) {
+            TrainingDataOutput[] tdo = LSTMTrainingData.output.Where(x => x.index == i).ToArray();
+
+            if (tdo.Length != 0) {
+
+                int startIndex = i - 2;
+                int endIndex = i + 2;
+
+                for (int j = startIndex; j < endIndex + 1; j++) {
+                    if (j >= 0 && j < LSTMTrainingData.input.Count) {
+                        TrainingDataOutput tempTdo = new TrainingDataOutput();
+                        tempTdo.output = new float[TOTAL_CLASSES];
+                        tempTdo.index = j;
+                        Array.Copy(tdo[0].output, tempTdo.output, TOTAL_CLASSES);
+                        int labelIndex = Array.IndexOf(tdo[0].output, 1.0f);
+                        if (labelIndex != -1) {
+                            tempTdo.output[labelIndex] = (j == i) ? 1.0f : 0.85f;//will do a smooth interpolation in the future, this is just for testing
+                            tdos.Add(tempTdo);
+                        }
+                        
+                    }
+                }
+            }
+        }
+
+        LSTMTrainingData.output = tdos;
     }
 }
