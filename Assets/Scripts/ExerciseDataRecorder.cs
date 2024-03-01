@@ -121,11 +121,11 @@ public class ExerciseDataRecorder : MonoBehaviour
         }
 
         if (isStartPosition) {
-            exercises[key].start = data;
+            exercises[key].startPosition = data;
             return;
         }
 
-        exercises[key].end = data;
+        exercises[key].endPosition = data;
     }
 
     private void Serialize<T>(T obj, string filePath)

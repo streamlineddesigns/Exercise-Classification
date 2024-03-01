@@ -13,8 +13,6 @@ public class LSTMInferenceController : MonoBehaviour
     [SerializeField]
     private MoveNetSinglePoseSample MoveNetSinglePoseSample;
 
-    [SerializeField] private HeatmapVisual heatmapVisual;
-
     [SerializeField]
     private NNModel NNModel;
 
@@ -30,16 +28,32 @@ public class LSTMInferenceController : MonoBehaviour
     private const float MIDDLE_THRESHOLD = 0.2f;
     private int timesteps = 8;
 
-    protected void Start()
+    protected void OnEnable()
     {
-        runtimeNNModel = ModelLoader.Load(NNModel);
-        BarracudaWorker = WorkerFactory.CreateWorker(runtimeNNModel, WorkerFactory.Device.CPU);
-        isRunning = true;
-        StartCoroutine(Run());
+        EventPublisher.OnExerciseSelected += OnExerciseSelected;
+        EventPublisher.OnExerciseEnded    += OnExerciseEnded;
     }
 
     protected void OnDisable()
     {
+        StopAllCoroutines();
+        EventPublisher.OnExerciseSelected -= OnExerciseSelected;
+        EventPublisher.OnExerciseEnded    -= OnExerciseEnded;
+
+    }
+
+    protected void OnExerciseSelected(string name)
+    {
+        isRunning = true;
+        NNModel = AppManager.Singleton.ExerciseDataRepository.data.Where(x => x.name == name).First().LSTMModel;
+        runtimeNNModel = ModelLoader.Load(NNModel);
+        BarracudaWorker = WorkerFactory.CreateWorker(runtimeNNModel, WorkerFactory.Device.CPU);
+        StartCoroutine(Run());
+    }
+
+    protected void OnExerciseEnded(string name)
+    {
+        isRunning = false;
         StopAllCoroutines();
     }
 
@@ -48,14 +62,6 @@ public class LSTMInferenceController : MonoBehaviour
         int count = 0;
 
         while(isRunning) {
-
-            if (MoveNetSinglePoseSample.heatmap == null) {
-                yield return new WaitForSeconds(0.1f);
-                continue;
-            }
-
-            heatmapVisual.SetHeatMapFlattened(MoveNetSinglePoseSample.heatmap);
-
             List<float> inputVector = new List<float>();
             List<float> currentPosesTemp;
             List<float> normalizedPoseDirectionTemp;

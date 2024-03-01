@@ -5,11 +5,24 @@ using UnityEngine;
 public class EventPublisher 
 {
     public delegate void NetworkEvent(string name);
-
     public static event NetworkEvent OnNetworkChange;
+
+    public delegate void ExerciseEvent(string name);
+    public static event ExerciseEvent OnExerciseSelected;
+    public static event ExerciseEvent OnExerciseEnded;
 
     public static void PublishNetworkChange(string name)
     {
         OnNetworkChange(name);
+    }
+
+    public static void PublishExerciseSelected(string name)
+    {
+        OnExerciseSelected(name);
+    }
+
+    public static void PublishExerciseEnded(string name)
+    {
+        OnExerciseEnded(name);
     }
 }

@@ -26,16 +26,32 @@ public class CNNInferenceController : MonoBehaviour
     private const float THRESHOLD = 0.7f;
     private const float MIDDLE_THRESHOLD = 0.3f;
 
-    protected void Start()
+    protected void OnEnable()
     {
-        runtimeNNModel = ModelLoader.Load(NNModel);
-        BarracudaWorker = WorkerFactory.CreateWorker(runtimeNNModel, WorkerFactory.Device.CPU);
-        isRunning = true;
-        StartCoroutine(Run());
+        EventPublisher.OnExerciseSelected += OnExerciseSelected;
+        EventPublisher.OnExerciseEnded    += OnExerciseEnded;
     }
 
     protected void OnDisable()
     {
+        StopAllCoroutines();
+        EventPublisher.OnExerciseSelected -= OnExerciseSelected;
+        EventPublisher.OnExerciseEnded    -= OnExerciseEnded;
+
+    }
+
+    protected void OnExerciseSelected(string name)
+    {
+        isRunning = true;
+        NNModel = AppManager.Singleton.ExerciseDataRepository.data.Where(x => x.name == name).First().CNNModel;
+        runtimeNNModel = ModelLoader.Load(NNModel);
+        BarracudaWorker = WorkerFactory.CreateWorker(runtimeNNModel, WorkerFactory.Device.CPU);
+        StartCoroutine(Run());
+    }
+
+    protected void OnExerciseEnded(string name)
+    {
+        isRunning = false;
         StopAllCoroutines();
     }
 
@@ -49,8 +65,6 @@ public class CNNInferenceController : MonoBehaviour
                 yield return new WaitForSeconds(0.1f);
                 continue;
             }
-
-            heatmapVisual.SetHeatMapFlattened(MoveNetSinglePoseSample.heatmap);
 
             ForwardPass();
 
