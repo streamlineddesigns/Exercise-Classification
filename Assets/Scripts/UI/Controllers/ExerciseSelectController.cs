@@ -11,6 +11,8 @@ public class ExerciseSelectController : Controller
     // Start is called before the first frame update
     void Start()
     {
+        base.Start();
+        
         for (int i = 0; i < AppManager.Singleton.ExerciseDataRepository.data.Count; i++) {
             GameObject go = Instantiate(ExerciseSelectButtonPrefab, ButtonParent);
             ExerciseSelectButtonView exerciseSelectButtonView = go.GetComponent<ExerciseSelectButtonView>();
