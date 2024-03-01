@@ -76,7 +76,7 @@ public class CNNInferenceController : MonoBehaviour
                 switcher = false;
                 middle = false;
                 count++;
-                Debug.Log(count);
+                //Debug.Log(count);
             }
 
             yield return new WaitForSeconds(0.1f);

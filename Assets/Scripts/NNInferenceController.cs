@@ -9,13 +9,15 @@ using Data;
 
 public class NNInferenceController : MonoBehaviour
 {
+    public float[] outputf;
+    public Tensor output;
     public float[] startPosition;
     public float[] endPosition;
 
     [SerializeField]
     private MoveNetSinglePoseSample MoveNetSinglePoseSample;
 
-    private Dictionary<string, ExerciseData> exercises;
+    private Dictionary<string, UserExerciseData> exercises;
     private string exerciseSaveFilePath;
 
     private bool isRunning;
@@ -44,12 +46,14 @@ public class NNInferenceController : MonoBehaviour
 
     protected void OnExerciseSelected(string name)
     {
-        string dir = Application.persistentDataPath;
-        exerciseSaveFilePath = (dir + "/Exercises.dat");
-        Load();
-
+        //load start position from exercise data repository
         startPosition = AppManager.Singleton.ExerciseDataRepository.data.Where(x => x.name == name).First().startPosition;
         endPosition = AppManager.Singleton.ExerciseDataRepository.data.Where(x => x.name == name).First().endPosition;
+
+        //check user exercise data to see if they edited the exercise
+        string dir = Application.persistentDataPath;
+        exerciseSaveFilePath = (dir + "/UserExerciseData.dat");
+        StartCoroutine(Load());
 
         isRunning = true;
         StartCoroutine(Run());
@@ -61,13 +65,19 @@ public class NNInferenceController : MonoBehaviour
         StopAllCoroutines();
     }
 
-    public void Load()
+    IEnumerator Load()
     {
-        exercises = DataSaveManager.Deserialize<Dictionary<string, ExerciseData>>(exerciseSaveFilePath);
+        exercises = DataSaveManager.Deserialize<Dictionary<string, UserExerciseData>>(exerciseSaveFilePath);
+        yield return new WaitUntil(() => exercises != null);
+        
+        if (exercises.ContainsKey(AppManager.Singleton.currentExerciseName)) {
+            startPosition = exercises[AppManager.Singleton.currentExerciseName].startPosition;
+            endPosition = exercises[AppManager.Singleton.currentExerciseName].endPosition;
+        }
     }
 
     IEnumerator Run()
-    {
+    {        
         startPoses = new float[MoveNetSinglePoseSample.poses.Count * 2];
         int count = 0;
 
@@ -95,9 +105,6 @@ public class NNInferenceController : MonoBehaviour
             float currentPoseStartDistance = VectorUtils.GetDistance(MoveNetSinglePoseSample.currentPoses, startPosition);
             float currentPoseEndDistance = VectorUtils.GetDistance(MoveNetSinglePoseSample.currentPoses, endPosition);
 
-            if (MoveNetSinglePoseSample.poses.Count(x => x.z >= 0.3f) <= 5) {
-
-            } else {
                 if (switcher) {
                     //look for similarity between current pose and start position of exercise
                     if (currentPoseStartDistance < 0.5f && currentPoseStartDistance + 0.1f < currentPoseEndDistance) {
@@ -133,7 +140,7 @@ public class NNInferenceController : MonoBehaviour
                     if (currentPoseEndDistance < 0.5f && currentPoseEndDistance + 0.1f < currentPoseStartDistance) {
                         if (Mathf.Abs(Time.time - countTime) >= 0.0333f) {
                             countTime = Time.time;
-                            Debug.Log(count);
+                            //Debug.Log(count);
                             count++;
                             switcher = true;
                             startSet = false;
@@ -141,9 +148,12 @@ public class NNInferenceController : MonoBehaviour
                         }
                     }
                 }
-            }
             
-            
+            float[] start = new float[3] {Mathf.Abs(1.0f - currentPoseStartDistance), 0.0f, 0.0f};
+            float[] end = new float[3] {0.0f, Mathf.Abs(1.0f - currentPoseEndDistance), 0.0f};
+            float[] falsePositives = new float[3] {0.0f, 0.0f, 0.0f};
+            outputf = new float[]{start[0], end[1], falsePositives[2]};
+            output = new Tensor(1, 1, 3, 1, outputf);
 
             yield return new WaitForSeconds(0.1f);
         }

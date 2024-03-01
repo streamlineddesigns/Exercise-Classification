@@ -59,7 +59,6 @@ public class MLPInferenceController : MonoBehaviour
         while(isRunning) {
             ForwardPass();
 
-
             if (! switcher && output[0] >= THRESHOLD && output[0] > output[1] && output[0] > output[2]) {
                 switcher = true;
             } else if (switcher && !middle && output[1] >= MIDDLE_THRESHOLD && output[1] > output[0] && output[1] > output[2]) {
@@ -68,7 +67,7 @@ public class MLPInferenceController : MonoBehaviour
                 switcher = false;
                 middle = false;
                 count++;
-                Debug.Log(count);
+                //Debug.Log(count);
             }
 
             yield return new WaitForSeconds(0.1f);

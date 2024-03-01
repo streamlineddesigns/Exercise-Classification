@@ -7,6 +7,7 @@ public class AppManager : MonoBehaviour
 {
     public static AppManager Singleton;
     public string currentExerciseName;
+    public PredictionManager PredictionManager;
     public ExerciseDataRepository ExerciseDataRepository;
     public ControllerRegistry ControllerRegistry;
 
