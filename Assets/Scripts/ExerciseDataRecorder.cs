@@ -14,7 +14,7 @@ using Data;
 public class ExerciseDataRecorder : MonoBehaviour
 {
     [SerializeField] private MoveNetSinglePoseSample MoveNetSinglePoseSample;
-    public Dictionary<string, ExerciseData> exercises;
+    public Dictionary<string, UserExerciseData> exercises;
     private string exerciseSaveFilePath;
 
     private bool isRecording;
@@ -33,7 +33,7 @@ public class ExerciseDataRecorder : MonoBehaviour
     protected void Start()
     {
         string dir = Application.persistentDataPath;
-        exerciseSaveFilePath = (dir + "/Exercises.dat");
+        exerciseSaveFilePath = (dir + "/UserExerciseData.dat");
         Load();
     }
 
@@ -51,12 +51,12 @@ public class ExerciseDataRecorder : MonoBehaviour
 
     public void Load()
     {
-        exercises = Deserialize<Dictionary<string, ExerciseData>>(exerciseSaveFilePath);
+        exercises = DataSaveManager.Deserialize<Dictionary<string, UserExerciseData>>(exerciseSaveFilePath);
     }
 
     public void Save()
     {
-        Serialize<Dictionary<string, ExerciseData>>(exercises, exerciseSaveFilePath);
+        DataSaveManager.Serialize<Dictionary<string, UserExerciseData>>(exercises, exerciseSaveFilePath);
         saveButton.SetActive(false);
         exerciseNameDropdown.gameObject.SetActive(true);
         tryButton.SetActive(true);
@@ -116,7 +116,7 @@ public class ExerciseDataRecorder : MonoBehaviour
         string key = NormalizeText(exerciseName);
 
         if (! exercises.ContainsKey(key)) {
-            ExerciseData currentExerciseData = new ExerciseData();
+            UserExerciseData currentExerciseData = new UserExerciseData();
             exercises.Add(key, currentExerciseData);
         }
 
@@ -126,53 +126,6 @@ public class ExerciseDataRecorder : MonoBehaviour
         }
 
         exercises[key].endPosition = data;
-    }
-
-    private void Serialize<T>(T obj, string filePath)
-    {
-        BinaryFormatter formatter = new BinaryFormatter();
-        FileStream stream = new FileStream(filePath, FileMode.Create);
-
-        try
-        {
-            formatter.Serialize(stream, obj);
-        }
-        catch (SerializationException e)
-        {
-            Debug.LogError("Serialization failed! " + e.Message);
-        }
-        finally
-        {
-            stream.Close();
-        }
-    }
-
-    private T Deserialize<T>(string filePath) where T : new()
-    {
-        if (!File.Exists(filePath))
-        {
-            Debug.Log("Serialization file not found at " + filePath);
-            return new T();
-        }
-
-        BinaryFormatter formatter = new BinaryFormatter();
-        FileStream stream = new FileStream(filePath, FileMode.Open);
-        T obj = default(T);
-
-        try
-        {
-            obj = (T)formatter.Deserialize(stream);
-        }
-        catch (SerializationException e)
-        {
-            Debug.LogError("Deserialization failed! " + e.Message);
-        }
-        finally
-        {
-            stream.Close();
-        }
-
-        return obj;
     }
 
     string NormalizeText(string input) 
