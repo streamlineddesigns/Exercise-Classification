@@ -42,7 +42,7 @@ public class TrainingController : MonoBehaviour
 
     public void BackButtonClick()
     {
-        UIController.Singleton.BackButtonClick();
+        //UIController.Singleton.BackButtonClick();
     }
 
     public void RecordButtonClick()

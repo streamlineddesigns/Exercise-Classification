@@ -30,7 +30,7 @@ public class TestingController : MonoBehaviour
 
     public void BackButtonClick()
     {
-        UIController.Singleton.BackButtonClick();
+        //UIController.Singleton.BackButtonClick();
     }
 
     public void SetCountText(int count)
