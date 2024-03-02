@@ -19,7 +19,12 @@ public class ExerciseSelectController : Controller
             string currentExerciseDataName = AppManager.Singleton.ExerciseDataRepository.data[i].name;
             exerciseSelectButtonView.SetText(currentExerciseDataName);
             Button exerciseSelectButton = go.GetComponent<Button>();
-            exerciseSelectButton.onClick.AddListener(delegate{ExerciseSelectButtonClick(currentExerciseDataName);});
+            
+            if (AppManager.Singleton.ExerciseDataRepository.data[i].startPosition.Length != 0) {
+                exerciseSelectButton.onClick.AddListener(delegate{ExerciseSelectButtonClick(currentExerciseDataName);});
+            } else {
+                exerciseSelectButton.interactable = false;
+            }
         }
     }
 
