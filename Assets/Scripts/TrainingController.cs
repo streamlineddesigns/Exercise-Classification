@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class TrainingController : MonoBehaviour
@@ -12,6 +13,13 @@ public class TrainingController : MonoBehaviour
 
     [SerializeField]
     private MoveNetSinglePoseSample MoveNetSinglePoseSample;
+
+    [SerializeField] private ExerciseDataRepository ExerciseDataRepository;
+
+    public GameObject ExerciseSelectView;
+    public GameObject ExerciseSelectButtonPrefab;
+    public Transform ButtonParent;
+    private string currentExerciseName;
 
     [SerializeField]
     private TrainingData MLPTrainingData;
@@ -40,6 +48,24 @@ public class TrainingController : MonoBehaviour
 
     private bool isCountingDown;
 
+    void Start()
+    {        
+        for (int i = 0; i < ExerciseDataRepository.data.Count; i++) {
+            GameObject go = Instantiate(ExerciseSelectButtonPrefab, ButtonParent);
+            ExerciseSelectButtonView exerciseSelectButtonView = go.GetComponent<ExerciseSelectButtonView>();
+            string currentExerciseDataName = ExerciseDataRepository.data[i].name;
+            exerciseSelectButtonView.SetText(currentExerciseDataName);
+            Button exerciseSelectButton = go.GetComponent<Button>();
+            exerciseSelectButton.onClick.AddListener(delegate{ExerciseSelectButtonClick(currentExerciseDataName);});
+        }
+    }
+
+    private void ExerciseSelectButtonClick(string name)
+    {
+        currentExerciseName = name;
+        ExerciseSelectView.SetActive(false);
+    }
+
     public void BackButtonClick()
     {
         //UIController.Singleton.BackButtonClick();
@@ -56,8 +82,10 @@ public class TrainingController : MonoBehaviour
 
     public void SaveButtonClick()
     {
+        ExerciseSelectView.SetActive(true);
         StopRecording();
         AddAdditionalLSTMClassSampling();
+        SaveStartEndPositions();
         SerializeTrainingData();
     }
 
@@ -204,6 +232,36 @@ public class TrainingController : MonoBehaviour
         trainingData.output.Add(tdo);
     }
 
+    private void SaveStartEndPositions()
+    {        
+        List<float[]> starts = new List<float[]>();
+        List<float[]> ends = new List<float[]>();
+
+        List<int> inputIndexs = new List<int>();
+
+        for (int i = 0; i < MLPTrainingData.input.Count; i++) {
+            TrainingDataInput tdi = MLPTrainingData.input[i];
+            TrainingDataOutput[] tdoList = MLPTrainingData.output.Where(x => x.index == i).ToArray();
+
+            if (tdoList.Length > 0) {
+                TrainingDataOutput tdo = tdoList[0];
+                if (tdo.output[0] == 1.0f) {
+                    starts.Add(tdi.input);
+                } else if (tdo.output[1] == 1.0f) {
+                    ends.Add(tdi.input);
+                }
+            }
+        }
+        
+        float[] startPosition = VectorUtils.GetCentroid(starts.ToArray());
+        float[] endPosition = VectorUtils.GetCentroid(ends.ToArray());
+
+        int exerciseIndex = ExerciseDataRepository.data.FindIndex(x => x.name == currentExerciseName);
+
+        ExerciseDataRepository.data[exerciseIndex].startPosition = startPosition;
+        ExerciseDataRepository.data[exerciseIndex].endPosition = endPosition;
+    }
+
     private void SerializeTrainingData()
     {
         SerializeTrainingDataByType(InferenceType.MLP, ref MLPTrainingData);
@@ -267,8 +325,8 @@ public class TrainingController : MonoBehaviour
 
             if (tdo.Length != 0) {
 
-                int startIndex = i - 2;
-                int endIndex = i + 2;
+                int startIndex = i - 1;
+                int endIndex = i + 1;
 
                 for (int j = startIndex; j < endIndex + 1; j++) {
                     if (j >= 0 && j < LSTMTrainingData.input.Count) {
@@ -276,12 +334,12 @@ public class TrainingController : MonoBehaviour
                         tempTdo.output = new float[TOTAL_CLASSES];
                         tempTdo.index = j;
                         Array.Copy(tdo[0].output, tempTdo.output, TOTAL_CLASSES);
-                        int labelIndex = Array.IndexOf(tdo[0].output, 1.0f);
+                        tdos.Add(tempTdo);
+                        /*int labelIndex = Array.IndexOf(tdo[0].output, 1.0f);
                         if (labelIndex != -1) {
                             tempTdo.output[labelIndex] = (j == i) ? 1.0f : 0.85f;//will do a smooth interpolation in the future, this is just for testing
                             tdos.Add(tempTdo);
-                        }
-                        
+                        }*/
                     }
                 }
             }

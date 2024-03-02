@@ -39,7 +39,7 @@ model.add(Dense(Y.shape[1], activation='softmax'))
 
 # Compile and train
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
-model.fit(X_train, y_train, epochs=100, batch_size=64)
+model.fit(X_train, y_train, epochs=128, batch_size=64)
 
 #Model info
 print("_______________________________________________________________________")
