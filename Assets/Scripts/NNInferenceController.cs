@@ -28,10 +28,13 @@ public class NNInferenceController : MonoBehaviour
     private bool endSet;
     private float[] endPoses;
 
+    private string currentExerciseName;
+
     protected void OnEnable()
     {
         EventPublisher.OnExerciseSelected += OnExerciseSelected;
         EventPublisher.OnExerciseEnded    += OnExerciseEnded;
+        EventPublisher.OnUserExerciseDataChanged += OnUserExerciseDataChanged;
     }
 
     protected void OnDisable()
@@ -39,13 +42,14 @@ public class NNInferenceController : MonoBehaviour
         StopAllCoroutines();
         EventPublisher.OnExerciseSelected -= OnExerciseSelected;
         EventPublisher.OnExerciseEnded    -= OnExerciseEnded;
+        EventPublisher.OnUserExerciseDataChanged -= OnUserExerciseDataChanged;
     }
 
     protected void OnExerciseSelected(string name)
     {
-        //load start position from exercise data repository
-        startPosition = AppManager.Singleton.ExerciseDataRepository.data.Where(x => x.name == name).First().startPosition;
-        endPosition = AppManager.Singleton.ExerciseDataRepository.data.Where(x => x.name == name).First().endPosition;
+        currentExerciseName = name;
+
+        LoadRepoExerciseData();
 
         StartCoroutine(Load());
 
@@ -59,16 +63,40 @@ public class NNInferenceController : MonoBehaviour
         StopAllCoroutines();
     }
 
+    protected void OnUserExerciseDataChanged(string name)
+    {
+        StartCoroutine(Load());
+    }
+
     IEnumerator Load()
     {
         UserDataManager.Singleton.Load();
         
         yield return new WaitUntil(() => UserDataManager.Singleton.exercises != null);
         
+        bool isUserDataAvailable = false;
+
         if (UserDataManager.Singleton.exercises.ContainsKey(AppManager.Singleton.currentExerciseName)) {
-            startPosition = UserDataManager.Singleton.exercises[AppManager.Singleton.currentExerciseName].startPosition;
-            endPosition = UserDataManager.Singleton.exercises[AppManager.Singleton.currentExerciseName].endPosition;
+            float dataBalancingValue = UserDataManager.Singleton.exercises[AppManager.Singleton.currentExerciseName].balancingValue;
+            float pw = 1.0f - dataBalancingValue;
+            if (pw > 0.0f) {
+                //Debug.Log("Loading USER data for NN");
+                isUserDataAvailable = true;
+                startPosition = UserDataManager.Singleton.exercises[AppManager.Singleton.currentExerciseName].startPosition;
+                endPosition = UserDataManager.Singleton.exercises[AppManager.Singleton.currentExerciseName].endPosition;
+            }
+
+            if (! isUserDataAvailable) {
+                //Debug.Log("Loading REPO data for NN");
+                LoadRepoExerciseData();
+            }
         }
+    }
+
+    protected void LoadRepoExerciseData()
+    {
+        startPosition = AppManager.Singleton.ExerciseDataRepository.data.Where(x => x.name == currentExerciseName).First().startPosition;
+        endPosition = AppManager.Singleton.ExerciseDataRepository.data.Where(x => x.name == currentExerciseName).First().endPosition;
     }
 
     IEnumerator Run()

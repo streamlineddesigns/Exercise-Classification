@@ -92,5 +92,6 @@ public class ExerciseSettingsController : Controller
     private void SaveUserExerciseData()
     {
         UserDataManager.Singleton.Save();
+        EventPublisher.PublishUserExerciseDataChanged(ExerciseNameText.text);
     }
 }
