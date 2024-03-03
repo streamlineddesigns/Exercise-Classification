@@ -23,4 +23,5 @@ public enum ViewName {
     ExerciseVideoRecord,
     ExerciseVideoAnnotate,
     ExerciseSelectButton,
+    ExerciseSettings,
 }

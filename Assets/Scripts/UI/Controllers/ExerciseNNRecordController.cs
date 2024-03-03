@@ -97,6 +97,7 @@ public class ExerciseNNRecordController : Controller
         if (! exercises.ContainsKey(key)) {
             UserExerciseData currentExerciseData = new UserExerciseData();
             exercises.Add(key, currentExerciseData);
+            AddDefaultDataBalancingValue();
         }
 
         if (isStartPosition) {
@@ -119,6 +120,12 @@ public class ExerciseNNRecordController : Controller
         return input;
     }
 
+    private void AddDefaultDataBalancingValue()
+    {
+        exercises[exerciseNameText.text].balancingValue = 0.75f;
+        exercises[exerciseNameText.text].hasUserData = true;
+    }
+
     protected void LoadUserExerciseData()
     {
         string dir = Application.persistentDataPath;
@@ -129,6 +136,8 @@ public class ExerciseNNRecordController : Controller
     private void SaveUserExerciseData()
     {
         DataSaveManager.Serialize<Dictionary<string, UserExerciseData>>(exercises, exerciseSaveFilePath);
-        UIController.Singleton.Open(ViewName.ExerciseSelect);
+        UIController.Singleton.Open(ViewName.ExerciseCount);
+        EventPublisher.PublishExerciseSelected(AppManager.Singleton.currentExerciseName);
+        UIController.Singleton.OpenImmediately(ViewName.ExerciseSettings);
     }
 }

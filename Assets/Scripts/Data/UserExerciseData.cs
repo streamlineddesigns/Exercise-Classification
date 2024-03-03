@@ -11,6 +11,8 @@ namespace Data {
         public string name;
         public float[] startPosition;
         public float[] endPosition;
+        public float balancingValue;
+        public bool hasUserData;
     }
 
 }

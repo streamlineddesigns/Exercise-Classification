@@ -36,10 +36,9 @@ public class ExerciseCountController : Controller
         StopAllCoroutines();
     }
 
-    public void EditButtonClick()
+    public void SettingsButtonClick()
     {
-        UIController.Singleton.Open(ViewName.ExerciseNNRecord);
-        EventPublisher.PublishExerciseEnded(AppManager.Singleton.currentExerciseName);
+        UIController.Singleton.OpenImmediately(ViewName.ExerciseSettings);
     }
 
     IEnumerator Run()
@@ -56,6 +55,4 @@ public class ExerciseCountController : Controller
         UIController.Singleton.Open(ViewName.ExerciseSelect);
         EventPublisher.PublishExerciseEnded(AppManager.Singleton.currentExerciseName);
     }
-
-    
 }
