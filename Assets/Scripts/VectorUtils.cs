@@ -108,7 +108,11 @@ public static class VectorUtils
         List<Vector3> translatedPoses = new List<Vector3>();
 
         for (int i = 0; i < poses.Count; i++) {
-            translatedPoses.Add(new Vector3(poses[i].x - offset.x, poses[i].y - offset.y, poses[i].z));
+            Vector3 offsetTarget = new Vector3(poses[i].x - offset.x, poses[i].y - offset.y, poses[i].z);
+            Vector3 offsetDirection = GetDirection(poses[i], offsetTarget);
+            Vector3 normalizedOffsetDirection = offsetDirection.normalized;
+            Vector3 targetTranslatePosition = poses[i] + (normalizedOffsetDirection * offsetDirection.magnitude * 0.5f);
+            translatedPoses.Add(new Vector3(targetTranslatePosition.x, targetTranslatePosition.y, poses[i].z));
         }
 
         return translatedPoses;
