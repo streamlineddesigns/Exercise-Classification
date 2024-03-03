@@ -120,7 +120,7 @@ public class ExerciseNNRecordController : Controller
 
     private void AddDefaultDataBalancingValue()
     {
-        UserDataManager.Singleton.exercises[exerciseNameText.text].balancingValue = 0.75f;
+        UserDataManager.Singleton.exercises[exerciseNameText.text].balancingValue = 0.5f;
         UserDataManager.Singleton.exercises[exerciseNameText.text].hasUserData = true;
     }
 

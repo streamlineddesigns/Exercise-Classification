@@ -87,7 +87,6 @@ public class NNInferenceController : MonoBehaviour
             }
 
             if (! isUserDataAvailable) {
-                //Debug.Log("Loading REPO data for NN");
                 LoadRepoExerciseData();
             }
         }
@@ -95,6 +94,7 @@ public class NNInferenceController : MonoBehaviour
 
     protected void LoadRepoExerciseData()
     {
+        //Debug.Log("Loading REPO data for NN");
         startPosition = AppManager.Singleton.ExerciseDataRepository.data.Where(x => x.name == currentExerciseName).First().startPosition;
         endPosition = AppManager.Singleton.ExerciseDataRepository.data.Where(x => x.name == currentExerciseName).First().endPosition;
     }
