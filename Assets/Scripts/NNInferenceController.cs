@@ -17,9 +17,6 @@ public class NNInferenceController : MonoBehaviour
     [SerializeField]
     private MoveNetSinglePoseSample MoveNetSinglePoseSample;
 
-    private Dictionary<string, UserExerciseData> exercises;
-    private string exerciseSaveFilePath;
-
     private bool isRunning;
     private bool switcher;
     private bool middle;
@@ -50,9 +47,6 @@ public class NNInferenceController : MonoBehaviour
         startPosition = AppManager.Singleton.ExerciseDataRepository.data.Where(x => x.name == name).First().startPosition;
         endPosition = AppManager.Singleton.ExerciseDataRepository.data.Where(x => x.name == name).First().endPosition;
 
-        //check user exercise data to see if they edited the exercise
-        string dir = Application.persistentDataPath;
-        exerciseSaveFilePath = (dir + "/UserExerciseData.dat");
         StartCoroutine(Load());
 
         isRunning = true;
@@ -67,12 +61,13 @@ public class NNInferenceController : MonoBehaviour
 
     IEnumerator Load()
     {
-        exercises = DataSaveManager.Deserialize<Dictionary<string, UserExerciseData>>(exerciseSaveFilePath);
-        yield return new WaitUntil(() => exercises != null);
+        UserDataManager.Singleton.Load();
         
-        if (exercises.ContainsKey(AppManager.Singleton.currentExerciseName)) {
-            startPosition = exercises[AppManager.Singleton.currentExerciseName].startPosition;
-            endPosition = exercises[AppManager.Singleton.currentExerciseName].endPosition;
+        yield return new WaitUntil(() => UserDataManager.Singleton.exercises != null);
+        
+        if (UserDataManager.Singleton.exercises.ContainsKey(AppManager.Singleton.currentExerciseName)) {
+            startPosition = UserDataManager.Singleton.exercises[AppManager.Singleton.currentExerciseName].startPosition;
+            endPosition = UserDataManager.Singleton.exercises[AppManager.Singleton.currentExerciseName].endPosition;
         }
     }
 

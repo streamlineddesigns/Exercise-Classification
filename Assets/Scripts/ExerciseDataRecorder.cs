@@ -14,8 +14,6 @@ using Data;
 public class ExerciseDataRecorder : MonoBehaviour
 {
     [SerializeField] private MoveNetSinglePoseSample MoveNetSinglePoseSample;
-    public Dictionary<string, UserExerciseData> exercises;
-    private string exerciseSaveFilePath;
 
     private bool isRecording;
     private Vector2 anchorPoint = new Vector2(0.5f, 0.1f);
@@ -32,8 +30,6 @@ public class ExerciseDataRecorder : MonoBehaviour
 
     protected void Start()
     {
-        string dir = Application.persistentDataPath;
-        exerciseSaveFilePath = (dir + "/UserExerciseData.dat");
         Load();
     }
 
@@ -51,12 +47,12 @@ public class ExerciseDataRecorder : MonoBehaviour
 
     public void Load()
     {
-        exercises = DataSaveManager.Deserialize<Dictionary<string, UserExerciseData>>(exerciseSaveFilePath);
+        UserDataManager.Singleton.Load();
     }
 
     public void Save()
     {
-        DataSaveManager.Serialize<Dictionary<string, UserExerciseData>>(exercises, exerciseSaveFilePath);
+        UserDataManager.Singleton.Save();
         saveButton.SetActive(false);
         exerciseNameDropdown.gameObject.SetActive(true);
         tryButton.SetActive(true);
@@ -115,17 +111,17 @@ public class ExerciseDataRecorder : MonoBehaviour
     {
         string key = NormalizeText(exerciseName);
 
-        if (! exercises.ContainsKey(key)) {
+        if (! UserDataManager.Singleton.exercises.ContainsKey(key)) {
             UserExerciseData currentExerciseData = new UserExerciseData();
-            exercises.Add(key, currentExerciseData);
+            UserDataManager.Singleton.exercises.Add(key, currentExerciseData);
         }
 
         if (isStartPosition) {
-            exercises[key].startPosition = data;
+            UserDataManager.Singleton.exercises[key].startPosition = data;
             return;
         }
 
-        exercises[key].endPosition = data;
+        UserDataManager.Singleton.exercises[key].endPosition = data;
     }
 
     string NormalizeText(string input) 

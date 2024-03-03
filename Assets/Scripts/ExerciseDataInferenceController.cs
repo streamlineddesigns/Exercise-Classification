@@ -55,7 +55,7 @@ public class ExerciseDataInferenceController : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
 
         exerciseNameDropdown.ClearOptions();
-        List<string> names = ExerciseDataRecorder.exercises.Keys.ToList();
+        List<string> names = UserDataManager.Singleton.exercises.Keys.ToList();
         exerciseNameDropdown.AddOptions(names);
 
         if (names.Count == 0) {
@@ -156,8 +156,8 @@ public class ExerciseDataInferenceController : MonoBehaviour
         saveButton.SetActive(false);
         exerciseNameText.gameObject.SetActive(false);
         exerciseNameDropdown.gameObject.SetActive(false);
-        startPosition = ExerciseDataRecorder.exercises[exerciseNameDropdown.options[exerciseNameDropdown.value].text].startPosition;
-        endPosition = ExerciseDataRecorder.exercises[exerciseNameDropdown.options[exerciseNameDropdown.value].text].endPosition;
+        startPosition = UserDataManager.Singleton.exercises[exerciseNameDropdown.options[exerciseNameDropdown.value].text].startPosition;
+        endPosition = UserDataManager.Singleton.exercises[exerciseNameDropdown.options[exerciseNameDropdown.value].text].endPosition;
         List<float[]> centroidList = new List<float[]>();
         centroidList.Add(startPosition);
         centroidList.Add(endPosition);

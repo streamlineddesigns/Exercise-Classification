@@ -18,9 +18,7 @@ public class PredictionManager : MonoBehaviour
     [SerializeField] private LSTMInferenceController LSTMInferenceController;
     [SerializeField] private CNNInferenceController CNNInferenceController;
 
-    private Dictionary<string, UserExerciseData> exercises;
     private string currentExerciseName;
-    private string exerciseSaveFilePath;
     private bool isRunning;
     private const int CLASSES_COUNT = 3;
     
@@ -47,11 +45,6 @@ public class PredictionManager : MonoBehaviour
         EventPublisher.OnExerciseEnded    -= OnExerciseEnded;
     }
 
-    public void RefreshUserExerciseData()
-    {
-        LoadUserExerciseData();
-    }
-
     protected void OnExerciseSelected(string name)
     {
         currentExerciseName = name;
@@ -68,14 +61,12 @@ public class PredictionManager : MonoBehaviour
 
     protected void LoadUserExerciseData()
     {
-        string dir = Application.persistentDataPath;
-        exerciseSaveFilePath = (dir + "/UserExerciseData.dat");
-        exercises = DataSaveManager.Deserialize<Dictionary<string, UserExerciseData>>(exerciseSaveFilePath);
+        UserDataManager.Singleton.Load();
     }
 
     IEnumerator Run()
     {
-        yield return new WaitUntil(() => exercises != null);
+        yield return new WaitUntil(() => UserDataManager.Singleton.exercises != null);
 
         count = 0;
 
@@ -110,8 +101,8 @@ public class PredictionManager : MonoBehaviour
         float nw = 0.25f;
         float pw = 0.25f;
 
-        if (exercises.ContainsKey(currentExerciseName) && exercises[currentExerciseName].hasUserData) {
-            float dataBalancingValue = exercises[currentExerciseName].balancingValue;
+        if (UserDataManager.Singleton.exercises.ContainsKey(currentExerciseName) && UserDataManager.Singleton.exercises[currentExerciseName].hasUserData) {
+            float dataBalancingValue = UserDataManager.Singleton.exercises[currentExerciseName].balancingValue;
             float tempPW = 1.0f - dataBalancingValue;
             if (tempPW > 0.0f) {
                 nw = dataBalancingValue / 3.0f;

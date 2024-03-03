@@ -16,8 +16,6 @@ public class ExerciseNNRecordController : Controller
     [SerializeField] private TMP_Text exerciseNameText;
 
     private string exerciseName;
-    private Dictionary<string, UserExerciseData> exercises;
-    private string exerciseSaveFilePath;
 
     protected void OnEnable()
     {
@@ -94,18 +92,18 @@ public class ExerciseNNRecordController : Controller
     {
         string key = NormalizeText(exerciseName);
 
-        if (! exercises.ContainsKey(key)) {
+        if (! UserDataManager.Singleton.exercises.ContainsKey(key)) {
             UserExerciseData currentExerciseData = new UserExerciseData();
-            exercises.Add(key, currentExerciseData);
+            UserDataManager.Singleton.exercises.Add(key, currentExerciseData);
             AddDefaultDataBalancingValue();
         }
 
         if (isStartPosition) {
-            exercises[key].startPosition = data;
+            UserDataManager.Singleton.exercises[key].startPosition = data;
             return;
         }
 
-        exercises[key].endPosition = data;
+        UserDataManager.Singleton.exercises[key].endPosition = data;
     }
 
     string NormalizeText(string input) 
@@ -122,20 +120,18 @@ public class ExerciseNNRecordController : Controller
 
     private void AddDefaultDataBalancingValue()
     {
-        exercises[exerciseNameText.text].balancingValue = 0.75f;
-        exercises[exerciseNameText.text].hasUserData = true;
+        UserDataManager.Singleton.exercises[exerciseNameText.text].balancingValue = 0.75f;
+        UserDataManager.Singleton.exercises[exerciseNameText.text].hasUserData = true;
     }
 
     protected void LoadUserExerciseData()
     {
-        string dir = Application.persistentDataPath;
-        exerciseSaveFilePath = (dir + "/UserExerciseData.dat");
-        exercises = DataSaveManager.Deserialize<Dictionary<string, UserExerciseData>>(exerciseSaveFilePath);
+        UserDataManager.Singleton.Load();
     }
 
     private void SaveUserExerciseData()
     {
-        DataSaveManager.Serialize<Dictionary<string, UserExerciseData>>(exercises, exerciseSaveFilePath);
+        UserDataManager.Singleton.Save();
         UIController.Singleton.Open(ViewName.ExerciseCount);
         EventPublisher.PublishExerciseSelected(AppManager.Singleton.currentExerciseName);
         UIController.Singleton.OpenImmediately(ViewName.ExerciseSettings);

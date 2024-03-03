@@ -13,8 +13,6 @@ public class CNNInferenceController : MonoBehaviour
     [SerializeField]
     private MoveNetSinglePoseSample MoveNetSinglePoseSample;
 
-    [SerializeField] private HeatmapVisual heatmapVisual;
-
     [SerializeField]
     private NNModel NNModel;
 

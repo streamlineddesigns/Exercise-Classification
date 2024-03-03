@@ -13,9 +13,6 @@ public class ExerciseSettingsController : Controller
     public TMP_Text YourDataPercent;
     public TMP_Text OurDataPercent;
 
-    private Dictionary<string, UserExerciseData> exercises;
-    private string exerciseSaveFilePath;
-
     public bool isDataBalancingAvailable;
     private float balancingValue;
 
@@ -48,7 +45,7 @@ public class ExerciseSettingsController : Controller
     {
         if (isDataBalancingAvailable) {
             balancingValue = dataBalancingSlider.value;
-            exercises[ExerciseNameText.text].balancingValue = balancingValue;
+            UserDataManager.Singleton.exercises[ExerciseNameText.text].balancingValue = balancingValue;
             UpdateDataBalancingText();
         }
     }
@@ -63,15 +60,16 @@ public class ExerciseSettingsController : Controller
     {
         yield return null;
         
-        if (exercises.ContainsKey(ExerciseNameText.text)) {
+        if (UserDataManager.Singleton.exercises.ContainsKey(ExerciseNameText.text)) {
             isDataBalancingAvailable = true;
-            balancingValue = exercises[ExerciseNameText.text].balancingValue;
+            balancingValue = UserDataManager.Singleton.exercises[ExerciseNameText.text].balancingValue;
         } else {
             isDataBalancingAvailable = false;
             balancingValue = 1.0f;
         }
 
         dataBalancingAvailabilityMessage.SetActive(! isDataBalancingAvailable);
+        dataBalancingSlider.interactable = isDataBalancingAvailable;
         dataBalancingSlider.value = balancingValue;
 
         UpdateDataBalancingText();
@@ -88,14 +86,11 @@ public class ExerciseSettingsController : Controller
 
     protected void LoadUserExerciseData()
     {
-        string dir = Application.persistentDataPath;
-        exerciseSaveFilePath = (dir + "/UserExerciseData.dat");
-        exercises = DataSaveManager.Deserialize<Dictionary<string, UserExerciseData>>(exerciseSaveFilePath);
+        UserDataManager.Singleton.Load();
     }
 
     private void SaveUserExerciseData()
     {
-        DataSaveManager.Serialize<Dictionary<string, UserExerciseData>>(exercises, exerciseSaveFilePath);
-        AppManager.Singleton.PredictionManager.RefreshUserExerciseData();
+        UserDataManager.Singleton.Save();
     }
 }
