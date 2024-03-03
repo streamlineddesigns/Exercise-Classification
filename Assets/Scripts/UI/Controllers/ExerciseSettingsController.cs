@@ -96,5 +96,6 @@ public class ExerciseSettingsController : Controller
     private void SaveUserExerciseData()
     {
         DataSaveManager.Serialize<Dictionary<string, UserExerciseData>>(exercises, exerciseSaveFilePath);
+        AppManager.Singleton.PredictionManager.RefreshUserExerciseData();
     }
 }

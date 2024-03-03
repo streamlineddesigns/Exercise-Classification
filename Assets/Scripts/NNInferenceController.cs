@@ -149,8 +149,8 @@ public class NNInferenceController : MonoBehaviour
                     }
                 }
             
-            float[] start = new float[3] {Mathf.Abs(1.0f - currentPoseStartDistance), 0.0f, 0.0f};
-            float[] end = new float[3] {0.0f, Mathf.Abs(1.0f - currentPoseEndDistance), 0.0f};
+            float[] start = new float[3] {Mathf.Abs(1.2f - currentPoseStartDistance), 0.0f, 0.0f};
+            float[] end = new float[3] {0.0f, Mathf.Abs(1.2f - currentPoseEndDistance), 0.0f};
             float[] falsePositives = new float[3] {0.0f, 0.0f, 0.0f};
             outputf = new float[]{start[0], end[1], falsePositives[2]};
             output = new Tensor(1, 1, 3, 1, outputf);

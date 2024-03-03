@@ -242,4 +242,17 @@ public static class VectorUtils
 
         return centroid;
     }
+
+    public static float[] GetSummation(float[][] data)
+    {
+        float[] sum = new float[data[0].Length];
+
+        for (int i = 0; i < data.Length; i++) {
+            for (int j = 0; j < data[i].Length; j++) {
+                sum[j] += data[i][j];
+            }
+        }
+
+        return sum;
+    }
 }
