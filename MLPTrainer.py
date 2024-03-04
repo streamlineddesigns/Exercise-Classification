@@ -5,6 +5,7 @@ from keras.layers import Dense
 from sklearn.metrics import classification_report
 import numpy as np
 from sklearn.model_selection import train_test_split
+from keras import layers
 import tensorflow as tf
 
 # Read in the CSV file 
@@ -18,15 +19,17 @@ X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2)
 
 # Create the MLP model
 model = keras.Sequential()
-model.add(Dense(16, activation='relu', input_shape=(X.shape[1],)))
-model.add(Dense(16))
+model.add(Dense(32, kernel_regularizer=keras.regularizers.l2(0.001), activation='relu', input_shape=(X.shape[1],)))
+model.add(layers.Dropout(0.2))
+model.add(Dense(16, kernel_regularizer=keras.regularizers.l2(0.001), activation='relu'))
+model.add(layers.Dropout(0.2))
 model.add(Dense(Y.shape[1], activation='softmax'))
 
 # Compile the model
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 # Train the model
-model.fit(X_train, y_train, epochs=128, batch_size=32)
+model.fit(X_train, y_train, epochs=128, batch_size=16)
 
 #Model info
 print("_______________________________________________________________________")
