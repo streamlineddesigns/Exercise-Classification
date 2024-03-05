@@ -114,7 +114,7 @@ public class NNInferenceController : MonoBehaviour
         end = new float[3];
 
         while(isRunning) {
-            float[] dir = VectorUtils.GetDirection(MoveNetSinglePoseSample.previousPoses, MoveNetSinglePoseSample.currentPoses);
+            float[] dir = VectorUtils.GetDirection(MoveNetSinglePoseSample.interpolatedPreviousPoses, MoveNetSinglePoseSample.interpolatedCurrentPoses);
             float[] normDir = VectorUtils.NormalizeDirection(dir);
 
             float[] StartToEndDir = VectorUtils.GetDirection(startPosition, endPosition);
@@ -131,8 +131,8 @@ public class NNInferenceController : MonoBehaviour
 
             float distanceThresholdForTravelingInADirection = startToEndDistance * 0.1f;
 
-            float currentPoseStartDistance = VectorUtils.GetDistance(MoveNetSinglePoseSample.currentPoses, startPosition);
-            float currentPoseEndDistance = VectorUtils.GetDistance(MoveNetSinglePoseSample.currentPoses, endPosition);
+            float currentPoseStartDistance = VectorUtils.GetDistance(MoveNetSinglePoseSample.interpolatedCurrentPoses, startPosition);
+            float currentPoseEndDistance = VectorUtils.GetDistance(MoveNetSinglePoseSample.interpolatedCurrentPoses, endPosition);
 
                 if (switcher) {
                     //look for similarity between current pose and start position of exercise
@@ -157,10 +157,10 @@ public class NNInferenceController : MonoBehaviour
                     
                         if (! startSet) {
                             startSet = true;
-                            Array.Copy(MoveNetSinglePoseSample.currentPoses, startPoses, MoveNetSinglePoseSample.poses.Count);
+                            Array.Copy(MoveNetSinglePoseSample.interpolatedCurrentPoses, startPoses, MoveNetSinglePoseSample.poses.Count);
                         }
 
-                        if (VectorUtils.GetDistance(startPoses, MoveNetSinglePoseSample.currentPoses) >= distanceThresholdForTravelingInADirection) {
+                        if (VectorUtils.GetDistance(startPoses, MoveNetSinglePoseSample.interpolatedCurrentPoses) >= distanceThresholdForTravelingInADirection) {
                             middle = true;
                             start = new float[3]{0.3f, 0.0f, 0.0f};
                             end = new float[3]{0.0f, 0.6f, 0.0f};

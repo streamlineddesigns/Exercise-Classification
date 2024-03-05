@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -19,6 +20,8 @@ public class MoveNetSinglePoseSample : MonoBehaviour
     public float[] currentPoses;
     public float[] poseDirection;
     public float[] normalizedPoseDirection;
+    public float[] interpolatedPreviousPoses;
+    public float[] interpolatedCurrentPoses;
     private Vector2 anchorPoint = new Vector2(0.5f, 0.1f);
 
     [SerializeField]
@@ -59,6 +62,8 @@ public class MoveNetSinglePoseSample : MonoBehaviour
 
         currentPoses = new float[poses.Count * 2];
         previousPoses = new float[poses.Count * 2];
+        interpolatedCurrentPoses = new float[poses.Count * 2];
+        interpolatedPreviousPoses = new float[poses.Count * 2];
 
         isInvoking = true;
         StartCoroutine(Invoker());
@@ -110,7 +115,10 @@ public class MoveNetSinglePoseSample : MonoBehaviour
                 Invoke(currentTexture);
             }
 
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.05f);
+            //interpolating pose positions in-between current pose updates
+            InterpolatePose();
+            yield return new WaitForSeconds(0.05f);
         }
     }
 
@@ -156,11 +164,29 @@ public class MoveNetSinglePoseSample : MonoBehaviour
             Array.Copy(currentPoses, previousPoses, currentPoses.Length);
             //store current poses as an array (using temp poses) for faster access
             currentPoses = tempPoses.ToArray();
+
+            Array.Copy(interpolatedCurrentPoses, interpolatedPreviousPoses, currentPoses.Length);
+            Array.Copy(currentPoses, interpolatedCurrentPoses, currentPoses.Length);
             //calculate direction between previous poses and current poses
             poseDirection = VectorUtils.GetDirection(previousPoses, currentPoses);
             //calculate a normalized pose direction
             normalizedPoseDirection = VectorUtils.NormalizeDirection(poseDirection);
         }
+    }
+
+    /*
+     * Interpolate position of poses by using previous and current poses.
+     * Should only be called in-between current pose updates!
+     */
+    private void InterpolatePose()
+    {
+        Array.Copy(interpolatedCurrentPoses, interpolatedPreviousPoses, currentPoses.Length);
+        float magnitude = VectorUtils.GetDistance(previousPoses, currentPoses);
+        float[] scaledPoseDirection = new float[normalizedPoseDirection.Length];
+        for (int i = 0; i < normalizedPoseDirection.Length; i++) {
+            scaledPoseDirection[i] = normalizedPoseDirection[i] * (magnitude / 2.0f);
+        }
+        interpolatedCurrentPoses = VectorUtils.GetSummation(new float[][]{currentPoses, scaledPoseDirection});
     }
 
     private void Update()

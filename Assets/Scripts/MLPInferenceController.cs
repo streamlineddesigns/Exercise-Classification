@@ -76,7 +76,7 @@ public class MLPInferenceController : MonoBehaviour
 
     private void ForwardPass()
     {
-        Tensor inputs = new Tensor(1, 1, 34, 1, MoveNetSinglePoseSample.currentPoses); 
+        Tensor inputs = new Tensor(1, 1, 34, 1, MoveNetSinglePoseSample.interpolatedCurrentPoses); 
         BarracudaWorker.Execute(inputs);
         output = BarracudaWorker.PeekOutput();
         inputs.Dispose();

@@ -66,7 +66,7 @@ public class LSTMInferenceController : MonoBehaviour
             List<float> currentPosesTemp;
             List<float> normalizedPoseDirectionTemp;
 
-            currentPosesTemp = MoveNetSinglePoseSample.currentPoses.ToList();
+            currentPosesTemp = MoveNetSinglePoseSample.interpolatedCurrentPoses.ToList();
             normalizedPoseDirectionTemp = MoveNetSinglePoseSample.normalizedPoseDirection.ToList();
 
             inputVector.AddRange(currentPosesTemp);
