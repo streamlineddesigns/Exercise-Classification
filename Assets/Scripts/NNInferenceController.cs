@@ -30,6 +30,9 @@ public class NNInferenceController : MonoBehaviour
 
     private string currentExerciseName;
 
+    private float[] start;
+    private float[] end;
+
     protected void OnEnable()
     {
         EventPublisher.OnExerciseSelected += OnExerciseSelected;
@@ -107,6 +110,9 @@ public class NNInferenceController : MonoBehaviour
         int StartToEndCount = 0;
         int EndToStartCount = 0;
 
+        start = new float[3];
+        end = new float[3];
+
         while(isRunning) {
             float[] dir = VectorUtils.GetDirection(MoveNetSinglePoseSample.previousPoses, MoveNetSinglePoseSample.currentPoses);
             float[] normDir = VectorUtils.NormalizeDirection(dir);
@@ -135,6 +141,8 @@ public class NNInferenceController : MonoBehaviour
                             countTime = Time.time;
                             switcher = false;
                             startSet = false;
+                            start = new float[3]{1.0f, 0.0f, 0.0f};
+                            end = new float[3]{0.0f, 0.0f, 0.0f};
                         }
                     }
                 }
@@ -154,6 +162,8 @@ public class NNInferenceController : MonoBehaviour
 
                         if (VectorUtils.GetDistance(startPoses, MoveNetSinglePoseSample.currentPoses) >= distanceThresholdForTravelingInADirection) {
                             middle = true;
+                            start = new float[3]{0.3f, 0.0f, 0.0f};
+                            end = new float[3]{0.0f, 0.6f, 0.0f};
                         }
                     }
                 }
@@ -168,12 +178,15 @@ public class NNInferenceController : MonoBehaviour
                             switcher = true;
                             startSet = false;
                             middle = false;
+                            start = new float[3]{0.0f, 0.0f, 0.0f};
+                            end = new float[3]{0.0f, 1.0f, 0.0f};
                         }
                     }
                 }
             
-            float[] start = new float[3] {Mathf.Abs(1.2f - currentPoseStartDistance), 0.0f, 0.0f};
-            float[] end = new float[3] {0.0f, Mathf.Abs(1.2f - currentPoseEndDistance), 0.0f};
+            /*float[] start = new float[3] {Mathf.Abs(1.2f - currentPoseStartDistance), 0.0f, 0.0f};
+            float[] end = new float[3] {0.0f, Mathf.Abs(1.2f - currentPoseEndDistance), 0.0f};*/
+            
             float[] falsePositives = new float[3] {0.0f, 0.0f, 0.0f};
             outputf = new float[]{start[0], end[1], falsePositives[2]};
             output = new Tensor(1, 1, 3, 1, outputf);

@@ -79,13 +79,13 @@ public class PredictionManager : MonoBehaviour
 
             ForwardPass();
 
-            if (output[2] >= 0.25f || MoveNetSinglePoseSample.poses.Count(x => x.z >= 0.3f) <= 7) {
+            if (output[2] >= 0.25f || MoveNetSinglePoseSample.poses.Count(x => x.z >= 0.3f) <= 4) {
 
             } else if (! switcher && output[0] >= THRESHOLD && output[0] > output[1] && output[0] > output[2]) {
                 switcher = true;
-            } else if (switcher && !middle && output[1] >= MIDDLE_THRESHOLD && output[1] > output[0] && output[1] > output[2]) {
+            }/* else if (switcher && !middle && output[1] >= MIDDLE_THRESHOLD && output[1] > output[0] && output[1] > output[2]) {
                 middle = true;
-            } else if (switcher && middle && output[1] >= THRESHOLD && output[1] > output[0] && output[1] > output[2]) {
+            }*/ else if (switcher && /*middle &&*/ output[1] >= THRESHOLD && output[1] > output[0] && output[1] > output[2]) {
                 switcher = false;
                 middle = false;
                 count++;
