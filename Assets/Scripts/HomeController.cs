@@ -5,6 +5,17 @@ using UnityEngine.SceneManagement;
 
 public class HomeController : MonoBehaviour
 {
+    protected void OnEnable()
+    {
+        StartCoroutine(DelayedOnEnable());
+    }
+
+    IEnumerator DelayedOnEnable()
+    {
+        yield return null;
+        TestButtonClick();
+    }
+
     public void TrainButtonClick()
     {
         SceneManager.LoadScene("Training");
