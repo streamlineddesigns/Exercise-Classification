@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class ExerciseCountView : View
 {
-    
+    void OnEnable()
+    {
+        MobileCamKit.Singleton.setBrightness(50);
+        MobileCamKit.Singleton.setAutoFocus();
+        MobileCamKit.Singleton.setAutoWhiteBalance();
+    }
 }
     
