@@ -10,6 +10,8 @@ public class AppManager : MonoBehaviour
     public PredictionManager PredictionManager;
     public ExerciseDataRepository ExerciseDataRepository;
     public ControllerRegistry ControllerRegistry;
+    public CNNAEInferenceController CNNAEInferenceController;
+    public CNNEInferenceController CNNEInferenceController;
 
     public void Awake()
     {
