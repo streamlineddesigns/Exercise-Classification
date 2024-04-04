@@ -16,6 +16,8 @@ public class TrainingController : MonoBehaviour
 
     [SerializeField] private ExerciseDataRepository ExerciseDataRepository;
 
+    [SerializeField] private CNNEInferenceController CNNEInferenceController;
+
     public GameObject ExerciseSelectView;
     public GameObject ExerciseSelectButtonPrefab;
     public Transform ButtonParent;
@@ -64,6 +66,7 @@ public class TrainingController : MonoBehaviour
     {
         currentExerciseName = name;
         ExerciseSelectView.SetActive(false);
+        EventPublisher.PublishExerciseSelected(name);
     }
 
     public void BackButtonClick()
@@ -182,7 +185,7 @@ public class TrainingController : MonoBehaviour
         MLPTrainingData.input.Add(tdi);
     }
 
-    private void AddLSTMInput()
+    /*private void AddLSTMInput()
     {
         TrainingDataInput tdi = new TrainingDataInput();
 
@@ -200,6 +203,19 @@ public class TrainingController : MonoBehaviour
         temp.AddRange(normalizedPoseDirectionTemp);
 
         Array.Copy(temp.ToArray(), tdi.input, vectorLength);
+        LSTMTrainingData.input.Add(tdi);
+    }*/
+
+    private void AddLSTMInput()
+    {
+        float[] reconstructedImageRepresentation = CNNEInferenceController.reconstructedImageRepresentation;
+
+        float[] imageRepresentation = MoveNetSinglePoseSample.heatmap.GetFlattenedHeatmap();
+        heatmapVisual.SetHeatMapFlattened(MoveNetSinglePoseSample.heatmap);
+
+        TrainingDataInput tdi = new TrainingDataInput();
+        tdi.input = new float[reconstructedImageRepresentation.Length];
+        Array.Copy(reconstructedImageRepresentation, tdi.input, reconstructedImageRepresentation.Length);
         LSTMTrainingData.input.Add(tdi);
     }
 
