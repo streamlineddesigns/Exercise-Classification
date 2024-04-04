@@ -28,6 +28,22 @@ public class HeatmapVisual : MonoBehaviour
         }
     }
 
+    public void SetHeatMap(int[][] cells)
+    {
+        for (int i = 0; i < cells.Length; i++) {
+
+            for (int j = 0; j < cells[i].Length; j++) {
+                bool isActivated = cells[i][j] > 0;
+
+                if (isActivated) {
+                    heatMapRows[i].data[j].color = OnColor;
+                } else {
+                    heatMapRows[i].data[j].color = OffColor;
+                }
+            }
+        }
+    }
+
     public void SetHeatMap(Heatmap heatMap)
     {
         float[][] cells = heatMap.GetHeatmap();
