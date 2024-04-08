@@ -118,6 +118,58 @@ public static class VectorUtils
         return translatedPoses;
     }
 
+    public static List<Vector3> GetDirectionVectors(List<Vector3> poses)
+    {
+        List<Vector3> resampledPoses = new List<Vector3>();
+        
+        float[] fiveFloat = new float[3] {poses[5].x, poses[5].y, poses[5].z};
+        float[] sixFloat = new float[3] {poses[6].x, poses[6].y, poses[6].z};
+        float[] FiveSixCentroidFloat = GetCentroid(new float[][]{fiveFloat, sixFloat});
+        Vector3 FiveSixCentroidVector3 = new Vector3(FiveSixCentroidFloat[0], FiveSixCentroidFloat[1], 0.0f);
+        Vector3 ZeroTwo = FiveSixCentroidVector3;
+
+        Vector3 ZeroTargetOne  = poses[0];
+        Vector3 ZeroTargetTwo  = GetDirection(poses[0], ZeroTwo).normalized;
+
+        Vector3 OneTarget      = GetDirection(poses[0], poses[1]).normalized;
+        Vector3 TwoTarget      = GetDirection(poses[0], poses[2]).normalized;
+        Vector3 ThreeTarget    = GetDirection(poses[1], poses[3]).normalized;
+        Vector3 FourTarget     = GetDirection(poses[2], poses[4]).normalized;
+
+        Vector3 FiveTarget     = GetDirection(poses[6], poses[5]).normalized;
+        Vector3 SixTarget      = GetDirection(poses[5], poses[6]).normalized;
+        Vector3 SevenTarget    = GetDirection(poses[5], poses[7]).normalized;
+        Vector3 EightTarget    = GetDirection(poses[6], poses[8]).normalized;
+        Vector3 NineTarget     = GetDirection(poses[7], poses[9]).normalized;
+        Vector3 TenTarget      = GetDirection(poses[8], poses[10]).normalized;
+        Vector3 ElevenTarget   = GetDirection(poses[5], poses[11]).normalized;
+        Vector3 TwelveTarget   = GetDirection(poses[6], poses[12]).normalized;
+        Vector3 ThirteenTarget = GetDirection(poses[11], poses[13]).normalized;
+        Vector3 FourteenTarget = GetDirection(poses[12], poses[14]).normalized;
+        Vector3 FifteenTarget  = GetDirection(poses[13], poses[15]).normalized;
+        Vector3 SixteenTarget  = GetDirection(poses[14], poses[16]).normalized;
+
+        resampledPoses.Add(ZeroTargetTwo);
+        resampledPoses.Add(OneTarget);
+        resampledPoses.Add(TwoTarget);
+        resampledPoses.Add(ThreeTarget);
+        resampledPoses.Add(FourTarget);
+        resampledPoses.Add(FiveTarget);
+        resampledPoses.Add(SixTarget);
+        resampledPoses.Add(SevenTarget);
+        resampledPoses.Add(EightTarget);
+        resampledPoses.Add(NineTarget);
+        resampledPoses.Add(TenTarget);
+        resampledPoses.Add(ElevenTarget);
+        resampledPoses.Add(TwelveTarget);
+        resampledPoses.Add(ThirteenTarget);
+        resampledPoses.Add(FourteenTarget);
+        resampledPoses.Add(FifteenTarget);
+        resampledPoses.Add(SixteenTarget);
+
+        return resampledPoses;
+    }
+
     public static List<Vector3> ResampleToUniformMagnitude(List<Vector3> poses, float magnitude = 0.2f)
     {
         List<Vector3> resampledPoses = new List<Vector3>();
@@ -259,4 +311,58 @@ public static class VectorUtils
 
         return sum;
     }
+
+    public static float[] GetWeightedVector(float[] vector, float[] weights)
+    {
+        float[] weightedVector = new float[vector.Length];
+
+        if (vector.Length != weights.Length)
+        {
+            throw new ArgumentException("Vector and weights must have the same length.");
+        }
+
+        for (int i = 0; i < vector.Length; i++)
+        {
+            weightedVector[i] = vector[i] * weights[i];
+        }
+
+        return weightedVector;
+    }
+
+    public static float CosineSimilarity(float[] vector1, float[] vector2)
+    {
+        if (vector1.Length != vector2.Length)
+        {
+            throw new ArgumentException("Vectors must have the same length.");
+        }
+
+        float dotProduct = 0;
+        float norm1 = 0;
+        float norm2 = 0;
+
+        for (int i = 0; i < vector1.Length; i++)
+        {
+            dotProduct += vector1[i] * vector2[i];
+            norm1 += vector1[i] * vector1[i];
+            norm2 += vector2[i] * vector2[i];
+        }
+
+        norm1 = (float)Math.Sqrt(norm1);
+        norm2 = (float)Math.Sqrt(norm2);
+
+        if (norm1 == 0 || norm2 == 0)
+        {
+            return 0;
+        }
+
+        return dotProduct / (norm1 * norm2);
+    }
+
+    public static float WeightedCosineSimilarity(float[] vector1, float[] vector2, float[] weights)
+    {
+        float[] weightedVector1 = GetWeightedVector(vector1, weights);
+        float[] weightedVector2 = GetWeightedVector(vector2, weights);
+        return CosineSimilarity(weightedVector1, weightedVector2);
+    }
+
 }

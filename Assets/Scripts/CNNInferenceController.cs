@@ -59,8 +59,8 @@ public class CNNInferenceController : MonoBehaviour
 
         while(isRunning) {
             
-            if (MoveNetSinglePoseSample.heatmap == null) {
-                yield return new WaitForSeconds(0.1f);
+            if (MoveNetSinglePoseSample.heatmap == null || AppManager.Singleton.CNNAEInferenceController.outputsFlat == null) {
+                yield return new WaitForSeconds(0.25f);
                 continue;
             }
 
@@ -83,8 +83,11 @@ public class CNNInferenceController : MonoBehaviour
 
     private void ForwardPass()
     {
+        
         float[] imageRepresentation = MoveNetSinglePoseSample.heatmap.GetFlattenedHeatmap();
+        //float[] reconstructedImageRepresentation = AppManager.Singleton.CNNAEInferenceController.outputsFlat;
         Tensor inputs = new Tensor(1, 28, 28, 1, imageRepresentation);
+        //Tensor inputs = new Tensor(1, 28, 28, 1, reconstructedImageRepresentation);
         BarracudaWorker.Execute(inputs);
         output = BarracudaWorker.PeekOutput();
         inputs.Dispose();

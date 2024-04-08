@@ -162,8 +162,8 @@ public class NNInferenceController : MonoBehaviour
 
                         if (VectorUtils.GetDistance(startPoses, MoveNetSinglePoseSample.interpolatedCurrentPoses) >= distanceThresholdForTravelingInADirection) {
                             middle = true;
-                            start = new float[3]{0.3f, 0.0f, 0.0f};
-                            end = new float[3]{0.0f, 0.6f, 0.0f};
+                            start = new float[3]{0.5f, 0.0f, 0.0f};
+                            end = new float[3]{0.0f, 0.5f, 0.0f};
                         }
                     }
                 }

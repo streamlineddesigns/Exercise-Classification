@@ -2,11 +2,30 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
-from keras.layers import LSTM, Dense
+from keras.layers import LSTM, Dense, Flatten
 from sklearn.metrics import classification_report
 from tensorflow import keras
 from keras import layers
 import tensorflow as tf
+from sklearn.utils import class_weight
+
+def weighted_categorical_crossentropy(class_weights):
+    class_weights = tf.cast(class_weights, tf.float32)
+    
+    def loss(y_true, y_pred):
+        # Clip the predicted values to avoid log(0)
+        y_pred = tf.clip_by_value(y_pred, 1e-7, 1 - 1e-7)
+        
+        # Calculate the categorical cross-entropy loss
+        cce_loss = tf.keras.losses.categorical_crossentropy(y_true, y_pred)
+        
+        # Apply the class weights to the loss
+        weighted_cce_loss = tf.multiply(cce_loss, tf.reduce_sum(tf.multiply(class_weights, y_true), axis=-1))
+        
+        # Return the mean weighted loss
+        return tf.reduce_mean(weighted_cce_loss)
+    
+    return loss
 
 # Read in the CSV file
 df = pd.read_csv('MoveLSTMTrainingData.csv')
@@ -25,7 +44,10 @@ target_pos = -3 # Third last columns as target
 X, Y = sliding_windows(df, seq_length, target_pos)
 
 #Split into training / test
-X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3)
+
+# Compute class weights based on the frequency of each class in the training data
+class_weights = class_weight.compute_class_weight('balanced', classes=np.unique(np.argmax(y_train, axis=1)), y=np.argmax(y_train, axis=1))
 
 # Build LSTM
 model = Sequential()
@@ -38,8 +60,9 @@ model.add(layers.Dropout(0.2))
 model.add(Dense(Y.shape[1], activation='softmax'))
 
 # Compile and train
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
-model.fit(X_train, y_train, epochs=512, batch_size=64)
+model.compile(optimizer='adam', loss=weighted_categorical_crossentropy(class_weights), metrics=['accuracy'])
+#model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
+model.fit(X_train, y_train, epochs=128, batch_size=32)
 
 #Model info
 print("_______________________________________________________________________")

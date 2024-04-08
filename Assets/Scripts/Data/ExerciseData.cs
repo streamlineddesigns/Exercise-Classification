@@ -14,6 +14,7 @@ namespace Data {
         public NNModel CNNModel;
         public float[] startPosition;
         public float[] endPosition;
+        public float[] weights;
     }
 
 }

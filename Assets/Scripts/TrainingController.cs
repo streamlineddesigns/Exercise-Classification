@@ -67,6 +67,7 @@ public class TrainingController : MonoBehaviour
         currentExerciseName = name;
         ExerciseSelectView.SetActive(false);
         EventPublisher.PublishExerciseSelected(name);
+        Debug.Log(currentExerciseName);
     }
 
     public void BackButtonClick()
@@ -185,6 +186,35 @@ public class TrainingController : MonoBehaviour
         MLPTrainingData.input.Add(tdi);
     }
 
+
+    /*private void AddLSTMInput()
+    {
+        TrainingDataInput tdi = new TrainingDataInput();
+
+        
+
+        //List<float> weightedPosesTemp = VectorUtils.GetWeightedVector(MoveNetSinglePoseSample.currentPoses, ExerciseDataRepository.data.Where(x => x.name == currentExerciseName).First().weights).ToList();
+        //List<float> weightedPosesDirectionTemp = VectorUtils.GetWeightedVector(MoveNetSinglePoseSample.normalizedPoseDirection, ExerciseDataRepository.data.Where(x => x.name == currentExerciseName).First().weights).ToList();
+        List<Vector3> currentPosesTemp = VectorUtils.GetDirectionVectors(MoveNetSinglePoseSample.resampledPoses.ToList());
+        List<float> currentPosesTempFloat = new List<float>();
+        for (int i = 0; i < currentPosesTemp.Count; i++) {
+            currentPosesTempFloat.Add(currentPosesTemp[i].x);
+            currentPosesTempFloat.Add(currentPosesTemp[i].y);
+        }
+
+        int vectorLength = MoveNetSinglePoseSample.currentPoses.Length + MoveNetSinglePoseSample.normalizedPoseDirection.Length + currentPosesTempFloat.Count + CNNEInferenceController.reconstructedImageRepresentation.Length;
+        tdi.input = new float[vectorLength];
+
+        List<float> temp = new List<float>();
+        temp.AddRange(MoveNetSinglePoseSample.currentPoses);
+        temp.AddRange(MoveNetSinglePoseSample.normalizedPoseDirection);
+        temp.AddRange(currentPosesTempFloat);
+        temp.AddRange(CNNEInferenceController.reconstructedImageRepresentation.ToList());
+
+        Array.Copy(temp.ToArray(), tdi.input, vectorLength);
+        LSTMTrainingData.input.Add(tdi);
+    }*/
+
     /*private void AddLSTMInput()
     {
         TrainingDataInput tdi = new TrainingDataInput();
@@ -193,16 +223,42 @@ public class TrainingController : MonoBehaviour
         List<float> currentPosesTemp;
         List<float> normalizedPoseDirectionTemp;
 
-        int vectorLength = MoveNetSinglePoseSample.currentPoses.Length + MoveNetSinglePoseSample.normalizedPoseDirection.Length;
+        int vectorLength = MoveNetSinglePoseSample.currentPoses.Length + CNNEInferenceController.reconstructedImageRepresentation.Length;
         tdi.input = new float[vectorLength];
 
         currentPosesTemp = MoveNetSinglePoseSample.currentPoses.ToList();
         normalizedPoseDirectionTemp = MoveNetSinglePoseSample.normalizedPoseDirection.ToList();
 
         temp.AddRange(currentPosesTemp);
-        temp.AddRange(normalizedPoseDirectionTemp);
+        //temp.AddRange(normalizedPoseDirectionTemp);
+        temp.AddRange(CNNEInferenceController.reconstructedImageRepresentation.ToList());
 
         Array.Copy(temp.ToArray(), tdi.input, vectorLength);
+        LSTMTrainingData.input.Add(tdi);
+    }*/
+
+    /*private void AddLSTMInput()
+    {
+        TrainingDataInput tdi = new TrainingDataInput();
+
+        List<Vector3> currentPosesTemp = VectorUtils.GetDirectionVectors(MoveNetSinglePoseSample.resampledPoses.ToList());
+        List<float> currentPosesTempFloat = new List<float>();
+
+        for (int i = 0; i < currentPosesTemp.Count; i++) {
+            currentPosesTempFloat.Add(currentPosesTemp[i].x);
+            currentPosesTempFloat.Add(currentPosesTemp[i].y);
+        }
+
+        List<float> temp = new List<float>();
+        temp.AddRange(currentPosesTempFloat.ToArray());
+        //temp.Add(ExerciseDataRepository.data.Where(x => x.name == currentExerciseName).First().weights);
+        temp.AddRange(MoveNetSinglePoseSample.normalizedPoseDirection);
+
+        //float[] weightedPoses = VectorUtils.GetSummation(temp.ToArray()).ToArray();
+        //float[] weightedPoses = VectorUtils.GetWeightedVector(currentPosesTempFloat.ToArray(), ExerciseDataRepository.data.Where(x => x.name == currentExerciseName).First().weights);
+
+        tdi.input = new float[temp.Count];
+        Array.Copy(temp.ToArray(), tdi.input, temp.Count);
         LSTMTrainingData.input.Add(tdi);
     }*/
 
@@ -314,7 +370,7 @@ public class TrainingController : MonoBehaviour
                 }
 
                 //empty class
-                float[] emptyClass = new float[TOTAL_CLASSES]{0.0f,0.0f,1.0f};
+                float[] emptyClass = new float[TOTAL_CLASSES]{0.0f,0.0f,0.5f};
 
                 //comma seperated output values
                 TrainingDataOutput[] tdo = trainingData.output.Where(x => x.index == i).ToArray();
@@ -346,16 +402,25 @@ public class TrainingController : MonoBehaviour
 
                 for (int j = startIndex; j < endIndex + 1; j++) {
                     if (j >= 0 && j < LSTMTrainingData.input.Count) {
+                        int distance = Mathf.Abs(i - j);
+                        float multiplier = distance * 0.1f;
+
                         TrainingDataOutput tempTdo = new TrainingDataOutput();
                         tempTdo.output = new float[TOTAL_CLASSES];
                         tempTdo.index = j;
                         Array.Copy(tdo[0].output, tempTdo.output, TOTAL_CLASSES);
                         tdos.Add(tempTdo);
-                        /*int labelIndex = Array.IndexOf(tdo[0].output, 1.0f);
+                        int labelIndex = Array.IndexOf(tdo[0].output, 1.0f);
                         if (labelIndex != -1) {
-                            tempTdo.output[labelIndex] = (j == i) ? 1.0f : 0.85f;//will do a smooth interpolation in the future, this is just for testing
-                            tdos.Add(tempTdo);
-                        }*/
+                            //tempTdo.output[labelIndex] = (j == i) ? 1.0f : 1.0f - multiplier;//will do a smooth interpolation in the future, this is just for testing
+                        }
+
+                        float val = tempTdo.output[labelIndex];
+                        float otherVal = 1.0f - val;
+                        int otherLabelIndex = (labelIndex == 0) ? 1 : 0;
+                        //tempTdo.output[otherLabelIndex] = otherVal;
+
+                        tdos.Add(tempTdo);
                     }
                 }
             }
