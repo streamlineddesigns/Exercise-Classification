@@ -55,7 +55,7 @@ public class MLPInferenceController : MonoBehaviour
     IEnumerator Run()
     {
         yield return new WaitUntil(() => MoveNetSinglePoseSample.resampledPoses.Count > 0);
-        
+
         int count = 0;
 
         while(isRunning) {
@@ -74,10 +74,6 @@ public class MLPInferenceController : MonoBehaviour
 
             yield return new WaitForSeconds(0.1f);
         }
-    }
-
-    public void AddMLPInput()
-    {
     }
 
     private void ForwardPass()
