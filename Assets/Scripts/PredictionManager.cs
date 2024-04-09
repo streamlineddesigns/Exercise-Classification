@@ -25,7 +25,7 @@ public class PredictionManager : MonoBehaviour
     private bool switcher;
     private bool middle;
     private const float THRESHOLD = 0.5f;
-    private const float MIDDLE_THRESHOLD = 0.3f;
+    private const float MIDDLE_THRESHOLD = 0.25f;
     private float countTime;
 
     protected void Start()
@@ -82,16 +82,18 @@ public class PredictionManager : MonoBehaviour
 
             if (output[2] >= 0.25f || MoveNetSinglePoseSample.poses.Count(x => x.z >= 0.3f) <= 4) {
 
-            } else if (! switcher && output[0] >= THRESHOLD && output[0] > output[1] + 0.1f && output[0] > output[2] + 0.1f) {
+            } else if (! switcher && output[0] >= THRESHOLD && output[0] > output[1] + 0.2f && output[0] > output[2] + 0.2f ) {
                 switcher = true;
-            } else if (switcher && output[1] >= THRESHOLD && output[1] > output[0] + 0.1f && output[1] > output[2] + 0.1f) {
+            } else if (switcher && !middle && output[1] >= MIDDLE_THRESHOLD && output[1] > output[0] + 0.2f && output[1] > output[2] + 0.2f ) {
+                middle = true;
+            } else if (switcher && middle && output[1] >= THRESHOLD && output[1] > output[0] + 0.2f && output[1] > output[2] + 0.2f) {
                 switcher = false;
                 middle = false;
                 count++;
                 //Debug.Log(count);
             }
 
-            yield return new WaitForSeconds(0.05f);
+            yield return new WaitForSeconds(0.1f);
         }
     }
 

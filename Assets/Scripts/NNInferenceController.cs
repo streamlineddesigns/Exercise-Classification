@@ -17,8 +17,11 @@ public class NNInferenceController : MonoBehaviour
     [SerializeField]
     private MoveNetSinglePoseSample MoveNetSinglePoseSample;
 
+    private float[] prev;
+    private float[] curr;
+
     private bool isRunning;
-    private bool switcher;
+    private bool switcher = true;
     private bool middle;
     private float countTime;
 
@@ -30,8 +33,8 @@ public class NNInferenceController : MonoBehaviour
 
     private string currentExerciseName;
 
-    private float[] start;
-    private float[] end;
+    private float[] start = new float[3];
+    private float[] end = new float[3];
 
     protected void OnEnable()
     {
@@ -104,17 +107,32 @@ public class NNInferenceController : MonoBehaviour
 
     IEnumerator Run()
     {        
-        startPoses = new float[MoveNetSinglePoseSample.poses.Count * 2];
+        yield return new WaitUntil(() => MoveNetSinglePoseSample.resampledPoses.Count > 0);
+
+        startPoses = new float[MoveNetSinglePoseSample.currentPoses.Length * 3];
+        curr = new float[MoveNetSinglePoseSample.currentPoses.Length * 3];
+        prev = new float[MoveNetSinglePoseSample.currentPoses.Length * 3];
         int count = 0;
 
         int StartToEndCount = 0;
         int EndToStartCount = 0;
 
-        start = new float[3];
-        end = new float[3];
-
         while(isRunning) {
-            float[] dir = VectorUtils.GetDirection(MoveNetSinglePoseSample.interpolatedPreviousPoses, MoveNetSinglePoseSample.interpolatedCurrentPoses);
+            List<Vector3> currentPoseDirectionVectorsTemp = VectorUtils.GetDirectionVectors(MoveNetSinglePoseSample.resampledPoses.ToList());
+            List<float> currentPoseDirectionVectors = new List<float>();
+            for (int i = 0; i < currentPoseDirectionVectorsTemp.Count; i++) {
+                currentPoseDirectionVectors.Add(currentPoseDirectionVectorsTemp[i].x);
+                currentPoseDirectionVectors.Add(currentPoseDirectionVectorsTemp[i].y);
+            }
+            List<float> temp = new List<float>();
+            temp.AddRange(MoveNetSinglePoseSample.currentPoses);
+            temp.AddRange(MoveNetSinglePoseSample.normalizedPoseDirection);
+            temp.AddRange(currentPoseDirectionVectors.ToArray());
+
+            prev = curr.ToArray();
+            curr = temp.ToArray();
+
+            float[] dir = VectorUtils.GetDirection(prev, curr);
             float[] normDir = VectorUtils.NormalizeDirection(dir);
 
             float[] StartToEndDir = VectorUtils.GetDirection(startPosition, endPosition);
@@ -131,8 +149,10 @@ public class NNInferenceController : MonoBehaviour
 
             float distanceThresholdForTravelingInADirection = startToEndDistance * 0.1f;
 
-            float currentPoseStartDistance = VectorUtils.GetDistance(MoveNetSinglePoseSample.interpolatedCurrentPoses, startPosition);
-            float currentPoseEndDistance = VectorUtils.GetDistance(MoveNetSinglePoseSample.interpolatedCurrentPoses, endPosition);
+            float currentPoseStartDistance = VectorUtils.GetDistance(curr, startPosition);
+            float currentPoseEndDistance = VectorUtils.GetDistance(curr, endPosition);
+
+            /*
 
                 if (switcher) {
                     //look for similarity between current pose and start position of exercise
@@ -157,10 +177,10 @@ public class NNInferenceController : MonoBehaviour
                     
                         if (! startSet) {
                             startSet = true;
-                            Array.Copy(MoveNetSinglePoseSample.interpolatedCurrentPoses, startPoses, MoveNetSinglePoseSample.poses.Count);
+                            Array.Copy(curr, startPoses, curr.Length);
                         }
 
-                        if (VectorUtils.GetDistance(startPoses, MoveNetSinglePoseSample.interpolatedCurrentPoses) >= distanceThresholdForTravelingInADirection) {
+                        if (VectorUtils.GetDistance(startPoses, curr) >= distanceThresholdForTravelingInADirection) {
                             middle = true;
                             start = new float[3]{0.5f, 0.0f, 0.0f};
                             end = new float[3]{0.0f, 0.5f, 0.0f};
@@ -182,13 +202,13 @@ public class NNInferenceController : MonoBehaviour
                             end = new float[3]{0.0f, 1.0f, 0.0f};
                         }
                     }
-                }
+                }*/
             
-            /*float[] start = new float[3] {Mathf.Abs(1.2f - currentPoseStartDistance), 0.0f, 0.0f};
-            float[] end = new float[3] {0.0f, Mathf.Abs(1.2f - currentPoseEndDistance), 0.0f};*/
+            start = new float[3] {Mathf.Abs(1.2f - currentPoseStartDistance), 0.0f, 0.0f};
+            end = new float[3] {0.0f, Mathf.Abs(1.2f - currentPoseEndDistance), 0.0f};
             
             float[] falsePositives = new float[3] {0.0f, 0.0f, 0.0f};
-            outputf = new float[]{start[0], end[1], falsePositives[2]};
+            outputf = new float[]{end[1], start[0], falsePositives[2]};
             output = new Tensor(1, 1, 3, 1, outputf);
 
             yield return new WaitForSeconds(0.1f);

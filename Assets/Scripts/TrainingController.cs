@@ -178,14 +178,40 @@ public class TrainingController : MonoBehaviour
         AddLSTMInput();
     }
     
-    private void AddMLPInput()
+    /*private void AddMLPInput()
     {
         TrainingDataInput tdi = new TrainingDataInput();
         tdi.input = new float[MoveNetSinglePoseSample.currentPoses.Length];
         Array.Copy(MoveNetSinglePoseSample.currentPoses, tdi.input, MoveNetSinglePoseSample.currentPoses.Length);
         MLPTrainingData.input.Add(tdi);
-    }
+    }*/
 
+    public void AddMLPInput()
+    {
+        TrainingDataInput tdi = new TrainingDataInput();
+        //float[] weights = ExerciseDataRepository.data.Where(x => x.name == currentExerciseName).First().weights;
+        //List<float> weightedPoses = VectorUtils.GetWeightedVector(MoveNetSinglePoseSample.currentPoses, weights).ToList();
+        //List<float> weightedPosesDirection = VectorUtils.GetWeightedVector(MoveNetSinglePoseSample.normalizedPoseDirection, weights).ToList();
+        List<Vector3> currentPoseDirectionVectorsTemp = VectorUtils.GetDirectionVectors(MoveNetSinglePoseSample.resampledPoses.ToList());
+        List<float> currentPoseDirectionVectors = new List<float>();
+        for (int i = 0; i < currentPoseDirectionVectorsTemp.Count; i++) {
+            currentPoseDirectionVectors.Add(currentPoseDirectionVectorsTemp[i].x);
+            currentPoseDirectionVectors.Add(currentPoseDirectionVectorsTemp[i].y);
+        }
+        //List<float> weightedPoseDirectionVectors = VectorUtils.GetWeightedVector(currentPoseDirectionVectors.ToArray(), weights).ToList();
+
+        int vectorLength = MoveNetSinglePoseSample.currentPoses.Length + MoveNetSinglePoseSample.normalizedPoseDirection.Length + currentPoseDirectionVectors.Count;
+        tdi.input = new float[vectorLength];
+
+        List<float> temp = new List<float>();
+        temp.AddRange(MoveNetSinglePoseSample.currentPoses);
+        temp.AddRange(MoveNetSinglePoseSample.normalizedPoseDirection);
+        temp.AddRange(currentPoseDirectionVectors.ToArray());
+        //temp.AddRange(CNNEInferenceController.reconstructedImageRepresentation.ToList());
+
+        Array.Copy(temp.ToArray(), tdi.input, vectorLength);
+        MLPTrainingData.input.Add(tdi);
+    }
 
     /*private void AddLSTMInput()
     {

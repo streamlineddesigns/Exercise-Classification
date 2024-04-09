@@ -54,6 +54,8 @@ public class MLPInferenceController : MonoBehaviour
 
     IEnumerator Run()
     {
+        yield return new WaitUntil(() => MoveNetSinglePoseSample.resampledPoses.Count > 0);
+        
         int count = 0;
 
         while(isRunning) {
@@ -74,9 +76,24 @@ public class MLPInferenceController : MonoBehaviour
         }
     }
 
+    public void AddMLPInput()
+    {
+    }
+
     private void ForwardPass()
     {
-        Tensor inputs = new Tensor(1, 1, 34, 1, MoveNetSinglePoseSample.interpolatedCurrentPoses); 
+        List<Vector3> currentPoseDirectionVectorsTemp = VectorUtils.GetDirectionVectors(MoveNetSinglePoseSample.resampledPoses.ToList());
+        List<float> currentPoseDirectionVectors = new List<float>();
+        for (int i = 0; i < currentPoseDirectionVectorsTemp.Count; i++) {
+            currentPoseDirectionVectors.Add(currentPoseDirectionVectorsTemp[i].x);
+            currentPoseDirectionVectors.Add(currentPoseDirectionVectorsTemp[i].y);
+        }
+        List<float> temp = new List<float>();
+        temp.AddRange(MoveNetSinglePoseSample.currentPoses);
+        temp.AddRange(MoveNetSinglePoseSample.normalizedPoseDirection);
+        temp.AddRange(currentPoseDirectionVectors.ToArray());
+
+        Tensor inputs = new Tensor(1, 1, 102, 1, temp.ToArray()); 
         BarracudaWorker.Execute(inputs);
         output = BarracudaWorker.PeekOutput();
         inputs.Dispose();

@@ -18,7 +18,7 @@ X = X.reshape(X.shape[0], 28, 28, 1)
 Y = df.iloc[:,-3:].values
 
 #Split into training / test
-X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3)
 
 # Define the model
 model = Sequential()

@@ -15,7 +15,7 @@ X = df.iloc[:,:-3].values
 Y = df.iloc[:,-3:].values 
 
 #Split into training / test
-X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3)
 
 # Create the MLP model
 model = keras.Sequential()

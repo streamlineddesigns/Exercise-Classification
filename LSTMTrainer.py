@@ -47,7 +47,10 @@ X, Y = sliding_windows(df, seq_length, target_pos)
 X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3)
 
 # Compute class weights based on the frequency of each class in the training data
-class_weights = class_weight.compute_class_weight('balanced', classes=np.unique(np.argmax(y_train, axis=1)), y=np.argmax(y_train, axis=1))
+#class_weights = class_weight.compute_class_weight('balanced', classes=np.unique(np.argmax(y_train, axis=1)), y=np.argmax(y_train, axis=1))
+class_weights = {0: 0.333, 1: 0.333, 2: 0.333}
+value_array = np.array(list(class_weights.values()))
+
 
 # Build LSTM
 model = Sequential()
@@ -60,9 +63,9 @@ model.add(layers.Dropout(0.2))
 model.add(Dense(Y.shape[1], activation='softmax'))
 
 # Compile and train
-model.compile(optimizer='adam', loss=weighted_categorical_crossentropy(class_weights), metrics=['accuracy'])
+model.compile(optimizer='adam', loss=weighted_categorical_crossentropy(value_array), metrics=['accuracy'])
 #model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
-model.fit(X_train, y_train, epochs=128, batch_size=32)
+model.fit(X_train, y_train, epochs=256, batch_size=32)
 
 #Model info
 print("_______________________________________________________________________")
