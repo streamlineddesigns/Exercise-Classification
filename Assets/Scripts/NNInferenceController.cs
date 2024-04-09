@@ -152,7 +152,7 @@ public class NNInferenceController : MonoBehaviour
             float currentPoseStartDistance = VectorUtils.GetDistance(curr, startPosition);
             float currentPoseEndDistance = VectorUtils.GetDistance(curr, endPosition);
 
-            /*
+            
 
                 if (switcher) {
                     //look for similarity between current pose and start position of exercise
@@ -202,7 +202,7 @@ public class NNInferenceController : MonoBehaviour
                             end = new float[3]{0.0f, 1.0f, 0.0f};
                         }
                     }
-                }*/
+                }
             
             start = new float[3] {Mathf.Abs(1.2f - currentPoseStartDistance), 0.0f, 0.0f};
             end = new float[3] {0.0f, Mathf.Abs(1.2f - currentPoseEndDistance), 0.0f};
