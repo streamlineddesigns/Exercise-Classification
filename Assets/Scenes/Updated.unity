@@ -26557,6 +26557,7 @@ MonoBehaviour:
   outputf: []
   startPosition: []
   endPosition: []
+  easeFunction: 5
   MoveNetSinglePoseSample: {fileID: 176077370}
 --- !u!1 &695668502
 GameObject:
@@ -31691,6 +31692,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   output: []
   count: 0
+  moveStep: 0.222
+  thresholdToMove: 0
+  movingZeroPrediction: 0
+  movingOnePrediction: 0
   MoveNetSinglePoseSample: {fileID: 176077370}
   NNInferenceController: {fileID: 693926310}
   MLPInferenceController: {fileID: 882345848}

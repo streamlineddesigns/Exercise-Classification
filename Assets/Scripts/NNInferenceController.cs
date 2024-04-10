@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Barracuda;
 using Data;
+using DG.Tweening;
 
 public class NNInferenceController : MonoBehaviour
 {
@@ -13,28 +14,19 @@ public class NNInferenceController : MonoBehaviour
     public Tensor output;
     public float[] startPosition;
     public float[] endPosition;
+    public Ease easeFunction;
 
     [SerializeField]
     private MoveNetSinglePoseSample MoveNetSinglePoseSample;
 
-    private float[] prev;
-    private float[] curr;
-
     private bool isRunning;
-    private bool switcher = true;
-    private bool middle;
-    private float countTime;
-
-    private bool startSet;
-    private float[] startPoses;
-
-    private bool endSet;
-    private float[] endPoses;
-
     private string currentExerciseName;
 
-    private float[] start = new float[3];
-    private float[] end = new float[3];
+    private float[] previousPositionRepresentation;
+    private float[] currentPositionRepresentation;
+
+    private float startPositionSimilarity;
+    private float endPositionSimilarity;
 
     protected void OnEnable()
     {
@@ -109,9 +101,8 @@ public class NNInferenceController : MonoBehaviour
     {        
         yield return new WaitUntil(() => MoveNetSinglePoseSample.resampledPoses.Count > 0);
 
-        startPoses = new float[MoveNetSinglePoseSample.currentPoses.Length * 3];
-        curr = new float[MoveNetSinglePoseSample.currentPoses.Length * 3];
-        prev = new float[MoveNetSinglePoseSample.currentPoses.Length * 3];
+        currentPositionRepresentation = new float[MoveNetSinglePoseSample.currentPoses.Length * 3];
+        previousPositionRepresentation = new float[MoveNetSinglePoseSample.currentPoses.Length * 3];
         int count = 0;
 
         int StartToEndCount = 0;
@@ -129,86 +120,24 @@ public class NNInferenceController : MonoBehaviour
             temp.AddRange(MoveNetSinglePoseSample.normalizedPoseDirection);
             temp.AddRange(currentPoseDirectionVectors.ToArray());
 
-            prev = curr.ToArray();
-            curr = temp.ToArray();
+            previousPositionRepresentation = currentPositionRepresentation.ToArray();
+            currentPositionRepresentation = temp.ToArray();
 
-            float[] dir = VectorUtils.GetDirection(prev, curr);
-            float[] normDir = VectorUtils.NormalizeDirection(dir);
+            //float[] normDir = VectorUtils.NormalizeDirection(VectorUtils.GetDirection(previousPositionRepresentation, currentPositionRepresentation));
+            //float[] StartToEndNormDir = VectorUtils.NormalizeDirection(VectorUtils.GetDirection(startPosition, endPosition));
+            //float[] EndToStartNormDir = VectorUtils.NormalizeDirection(VectorUtils.GetDirection(endPosition, startPosition));
 
-            float[] StartToEndDir = VectorUtils.GetDirection(startPosition, endPosition);
-            float[] StartToEndNormDir = VectorUtils.NormalizeDirection(StartToEndDir);
+            startPositionSimilarity = VectorUtils.CosineSimilarity(currentPositionRepresentation, startPosition); 
+            endPositionSimilarity = VectorUtils.CosineSimilarity(currentPositionRepresentation, endPosition);
 
-            float[] EndToStartDir = VectorUtils.GetDirection(endPosition, startPosition);
-            float[] EndToStartNormDir = VectorUtils.NormalizeDirection(EndToStartDir);
+            //startPositionSimilarity -= VectorUtils.CosineSimilarity(normDir, StartToEndNormDir);
+            //endPositionSimilarity -= VectorUtils.CosineSimilarity(normDir, EndToStartNormDir);
 
-            float startToEndDistance = VectorUtils.GetDistance(dir, StartToEndDir);
-            float endToStartDistance = VectorUtils.GetDistance(dir, EndToStartDir);
-
-            float startToEndNormDistance = VectorUtils.GetDistance(normDir, StartToEndNormDir);
-            float endToStartNormDistance = VectorUtils.GetDistance(normDir, EndToStartNormDir);
-
-            float distanceThresholdForTravelingInADirection = startToEndDistance * 0.1f;
-
-            float currentPoseStartDistance = VectorUtils.GetDistance(curr, startPosition);
-            float currentPoseEndDistance = VectorUtils.GetDistance(curr, endPosition);
-
-            
-
-                if (switcher) {
-                    //look for similarity between current pose and start position of exercise
-                    if (currentPoseStartDistance < 0.5f && currentPoseStartDistance + 0.1f < currentPoseEndDistance) {
-                        if (Mathf.Abs(Time.time - countTime) >= 0.0333f) {
-                            countTime = Time.time;
-                            switcher = false;
-                            startSet = false;
-                            start = new float[3]{1.0f, 0.0f, 0.0f};
-                            end = new float[3]{0.0f, 0.0f, 0.0f};
-                        }
-                    }
-                }
-                
-                //this might never be triggered in slow movements because startToEndDistance is a dissimilarity score between 2 directional vectors..
-                //look for similarity in direction of poses and direction of start to end positions in the exercise
-                if (! switcher && !middle && startToEndDistance <= 0.5f && startToEndDistance + 0.1f < endToStartDistance) {
-                    StartToEndCount++;
-                    //Debug.Log(StartToEndCount);
-                    if (Mathf.Abs(Time.time - countTime) >= 0.0333f) {
-                        countTime = Time.time;
-                    
-                        if (! startSet) {
-                            startSet = true;
-                            Array.Copy(curr, startPoses, curr.Length);
-                        }
-
-                        if (VectorUtils.GetDistance(startPoses, curr) >= distanceThresholdForTravelingInADirection) {
-                            middle = true;
-                            start = new float[3]{0.5f, 0.0f, 0.0f};
-                            end = new float[3]{0.0f, 0.5f, 0.0f};
-                        }
-                    }
-                }
-
-                if (! switcher && middle) {
-                    //look for similarity between current pose and end position of exercise
-                    if (currentPoseEndDistance < 0.5f && currentPoseEndDistance + 0.1f < currentPoseStartDistance) {
-                        if (Mathf.Abs(Time.time - countTime) >= 0.0333f) {
-                            countTime = Time.time;
-                            //Debug.Log(count);
-                            count++;
-                            switcher = true;
-                            startSet = false;
-                            middle = false;
-                            start = new float[3]{0.0f, 0.0f, 0.0f};
-                            end = new float[3]{0.0f, 1.0f, 0.0f};
-                        }
-                    }
-                }
-            
-            start = new float[3] {Mathf.Abs(1.2f - currentPoseStartDistance), 0.0f, 0.0f};
-            end = new float[3] {0.0f, Mathf.Abs(1.2f - currentPoseEndDistance), 0.0f};
+            float easedStart = DOVirtual.EasedValue(0.0f, 1.0f, startPositionSimilarity, easeFunction);
+            float easedEnd = DOVirtual.EasedValue(0.0f, 1.0f, endPositionSimilarity, easeFunction);
             
             float[] falsePositives = new float[3] {0.0f, 0.0f, 0.0f};
-            outputf = new float[]{end[1], start[0], falsePositives[2]};
+            outputf = new float[]{easedStart, easedEnd, falsePositives[2]};
             output = new Tensor(1, 1, 3, 1, outputf);
 
             yield return new WaitForSeconds(0.1f);
