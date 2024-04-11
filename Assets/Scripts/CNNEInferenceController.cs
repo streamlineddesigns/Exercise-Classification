@@ -9,7 +9,7 @@ using Unity.Barracuda;
 public class CNNEInferenceController : MonoBehaviour
 {
     public Tensor output;
-    public float[] reconstructedImageRepresentation;
+    public float[] encodedImageRepresentation;
 
     [SerializeField]
     private MoveNetSinglePoseSample MoveNetSinglePoseSample;
@@ -68,11 +68,11 @@ public class CNNEInferenceController : MonoBehaviour
         BarracudaWorker.Execute(inputs);
         output = BarracudaWorker.PeekOutput();
 
-        reconstructedImageRepresentation = new float[392];
+        encodedImageRepresentation = new float[392];
 
         for (int i = 0; i < 392; i++) {
             float val = (float) output[i];
-            reconstructedImageRepresentation[i] = val;
+            encodedImageRepresentation[i] = val;
         }
 
         inputs.Dispose();

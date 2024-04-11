@@ -93,20 +93,6 @@ public class PredictionManager : MonoBehaviour
             //run the forward pass
             ForwardPass();
 
-            //old inference routine
-            /*if (output[0] >= THRESHOLD && output[0] > output[1]) {
-                if (! switcher) {
-                    movingOnePrediction = 0.0f;
-                    switcher = true;
-                }
-            } else if (output[1] >= THRESHOLD && output[1] > output[0]) {
-                if (switcher) {
-                    switcher = false;
-                    count++;
-                    movingZeroPrediction = 0.0f;
-                }
-            }*/
-
             /*
              * Averaging Filter
              */

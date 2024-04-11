@@ -207,7 +207,7 @@ public class TrainingController : MonoBehaviour
         temp.AddRange(MoveNetSinglePoseSample.currentPoses);
         temp.AddRange(MoveNetSinglePoseSample.normalizedPoseDirection);
         temp.AddRange(currentPoseDirectionVectors.ToArray());
-        //temp.AddRange(CNNEInferenceController.reconstructedImageRepresentation.ToList());
+        //temp.AddRange(CNNEInferenceController.encodedImageRepresentation.ToList());
 
         Array.Copy(temp.ToArray(), tdi.input, vectorLength);
         MLPTrainingData.input.Add(tdi);
@@ -228,14 +228,14 @@ public class TrainingController : MonoBehaviour
             currentPosesTempFloat.Add(currentPosesTemp[i].y);
         }
 
-        int vectorLength = MoveNetSinglePoseSample.currentPoses.Length + MoveNetSinglePoseSample.normalizedPoseDirection.Length + currentPosesTempFloat.Count + CNNEInferenceController.reconstructedImageRepresentation.Length;
+        int vectorLength = MoveNetSinglePoseSample.currentPoses.Length + MoveNetSinglePoseSample.normalizedPoseDirection.Length + currentPosesTempFloat.Count + CNNEInferenceController.encodedImageRepresentation.Length;
         tdi.input = new float[vectorLength];
 
         List<float> temp = new List<float>();
         temp.AddRange(MoveNetSinglePoseSample.currentPoses);
         temp.AddRange(MoveNetSinglePoseSample.normalizedPoseDirection);
         temp.AddRange(currentPosesTempFloat);
-        temp.AddRange(CNNEInferenceController.reconstructedImageRepresentation.ToList());
+        temp.AddRange(CNNEInferenceController.encodedImageRepresentation.ToList());
 
         Array.Copy(temp.ToArray(), tdi.input, vectorLength);
         LSTMTrainingData.input.Add(tdi);
@@ -249,7 +249,7 @@ public class TrainingController : MonoBehaviour
         List<float> currentPosesTemp;
         List<float> normalizedPoseDirectionTemp;
 
-        int vectorLength = MoveNetSinglePoseSample.currentPoses.Length + CNNEInferenceController.reconstructedImageRepresentation.Length;
+        int vectorLength = MoveNetSinglePoseSample.currentPoses.Length + CNNEInferenceController.encodedImageRepresentation.Length;
         tdi.input = new float[vectorLength];
 
         currentPosesTemp = MoveNetSinglePoseSample.currentPoses.ToList();
@@ -257,7 +257,7 @@ public class TrainingController : MonoBehaviour
 
         temp.AddRange(currentPosesTemp);
         //temp.AddRange(normalizedPoseDirectionTemp);
-        temp.AddRange(CNNEInferenceController.reconstructedImageRepresentation.ToList());
+        temp.AddRange(CNNEInferenceController.encodedImageRepresentation.ToList());
 
         Array.Copy(temp.ToArray(), tdi.input, vectorLength);
         LSTMTrainingData.input.Add(tdi);
@@ -290,14 +290,12 @@ public class TrainingController : MonoBehaviour
 
     private void AddLSTMInput()
     {
-        float[] reconstructedImageRepresentation = CNNEInferenceController.reconstructedImageRepresentation;
-
-        float[] imageRepresentation = MoveNetSinglePoseSample.heatmap.GetFlattenedHeatmap();
         heatmapVisual.SetHeatMapFlattened(MoveNetSinglePoseSample.heatmap);
-
+        
+        float[] inputs = CNNEInferenceController.encodedImageRepresentation;
         TrainingDataInput tdi = new TrainingDataInput();
-        tdi.input = new float[reconstructedImageRepresentation.Length];
-        Array.Copy(reconstructedImageRepresentation, tdi.input, reconstructedImageRepresentation.Length);
+        tdi.input = new float[inputs.Length];
+        Array.Copy(inputs, tdi.input, inputs.Length);
         LSTMTrainingData.input.Add(tdi);
     }
 

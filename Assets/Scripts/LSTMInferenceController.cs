@@ -59,28 +59,14 @@ public class LSTMInferenceController : MonoBehaviour
 
     IEnumerator Run()
     {
-        yield return new WaitUntil(() => AppManager.Singleton.CNNEInferenceController.reconstructedImageRepresentation != null && MoveNetSinglePoseSample.resampledPoses.Count > 0);
+        yield return new WaitUntil(() => AppManager.Singleton.CNNEInferenceController.encodedImageRepresentation != null && MoveNetSinglePoseSample.resampledPoses.Count > 0);
         int count = 0;
 
         while(isRunning) {
-            /*List<Vector3> currentPosesTemp = VectorUtils.GetDirectionVectors(MoveNetSinglePoseSample.resampledPoses.ToList());
-            List<float> currentPosesTempFloat = new List<float>();
-            for (int i = 0; i < currentPosesTemp.Count; i++) {
-                currentPosesTempFloat.Add(currentPosesTemp[i].x);
-                currentPosesTempFloat.Add(currentPosesTemp[i].y);
-            }
-            
-            List<float> temp = new List<float>();
-            temp.AddRange(MoveNetSinglePoseSample.currentPoses);
-            temp.AddRange(MoveNetSinglePoseSample.normalizedPoseDirection);
-            temp.AddRange(currentPosesTempFloat);
-            temp.AddRange(AppManager.Singleton.CNNEInferenceController.reconstructedImageRepresentation.ToList());*/
-
             if (recentPoses.Count == timesteps) {
                 recentPoses.Dequeue(); 
             }
-            recentPoses.Enqueue(AppManager.Singleton.CNNEInferenceController.reconstructedImageRepresentation);
-
+            recentPoses.Enqueue(AppManager.Singleton.CNNEInferenceController.encodedImageRepresentation);
             if (recentPoses.Count == timesteps) {
                 ForwardPass();
             }
@@ -107,14 +93,9 @@ public class LSTMInferenceController : MonoBehaviour
 
     private void ForwardPass()
     {
-        float[][] rp = recentPoses.ToArray();
-        //Tensor inputs = new Tensor(1, timesteps, 68, 1, rp);
-
-        Tensor reconstructedImageRepresentation = new Tensor(1, timesteps, 392, 1, rp);
-
-        BarracudaWorker.Execute(reconstructedImageRepresentation);
+        Tensor inputs = new Tensor(1, timesteps, 392, 1, recentPoses.ToArray());
+        BarracudaWorker.Execute(inputs);
         output = BarracudaWorker.PeekOutput();
-        //inputs.Dispose();
-        reconstructedImageRepresentation.Dispose();
+        inputs.Dispose();
     }
 }
