@@ -14,63 +14,63 @@ public static class VectorUtils
         List<List<int>> connections = new List<List<int>>();
 
         List<int> connectionOne = new List<int>() {
-            0,17
+            0,17//direction between nose & centroid of leftShoulder & rightShoulder
         };
 
         List<int> connectionTwo = new List<int>() {
-            5,6
+            5,6//direction between leftShoulder & rightShoulder
         };
 
         List<int> connectionThree = new List<int>() {
-            5,7
+            5,7//direction between leftShoulder & leftElbow
         };
 
         List<int> connectionFour = new List<int>() {
-            6,8
+            6,8//direction between rightShoulder & rightElbow
         };
 
         List<int> connectionFive = new List<int>() {
-            7,9
+            7,9//direction between leftElbow & leftWrist
         };
 
         List<int> connectionSix = new List<int>() {
-            8,10
+            8,10//direction between rightElbow & rightWrist
         };
 
         List<int> connectionSeven = new List<int>() {
-            5,11
+            5,11//direction between leftShoulder & leftHip
         };
 
         List<int> connectionEight = new List<int>() {
-            6,12
+            6,12//direction between rightShoulder & rightHip
         };
 
         List<int> connectionNine = new List<int>() {
-            11,12
+            11,12//direction between leftHip & rightHip
         };
 
         List<int> connectionTen = new List<int>() {
-            11,13
+            11,13//direction between leftHip & leftKnee
         };
 
         List<int> connectionEleven = new List<int>() {
-            12,14
+            12,14//direction between rightHip & rightKnee
         };
 
         List<int> connectionTwelve = new List<int>() {
-            13,15
+            13,15//direction between leftKnee & leftAnkle
         };
 
         List<int> connectionThirteen = new List<int>() {
-            14,16
+            14,16//direction between rightKnee & rightAnkle
         };
 
         List<int> connectionFourteen = new List<int>() {
-            5,12
+            5,12//direction between leftShoulder & rightHip
         };
 
         List<int> connectionFifteen = new List<int>() {
-            6,11
+            6,11//direction between rightShoulder & leftHip
         };
 
         connections.Add(connectionOne);
@@ -129,25 +129,25 @@ public static class VectorUtils
         Vector3 ZeroTwo = FiveSixCentroidVector3;
 
         Vector3 ZeroTargetOne  = poses[0];
-        Vector3 ZeroTargetTwo  = GetDirection(poses[0], ZeroTwo).normalized;
+        Vector3 ZeroTargetTwo  = GetDirection(poses[0], ZeroTwo).normalized;//direction between nose & centroid of leftShoulder & rightShoulder
 
-        Vector3 OneTarget      = GetDirection(poses[0], poses[1]).normalized;
-        Vector3 TwoTarget      = GetDirection(poses[0], poses[2]).normalized;
-        Vector3 ThreeTarget    = GetDirection(poses[1], poses[3]).normalized;
-        Vector3 FourTarget     = GetDirection(poses[2], poses[4]).normalized;
+        Vector3 OneTarget      = GetDirection(poses[0], poses[1]).normalized;//direction between nose & leftEye
+        Vector3 TwoTarget      = GetDirection(poses[0], poses[2]).normalized;//direction between nose & rightEye
+        Vector3 ThreeTarget    = GetDirection(poses[1], poses[3]).normalized;//direction between leftEye & leftEar
+        Vector3 FourTarget     = GetDirection(poses[2], poses[4]).normalized;//direction between rightEye & rightEar
 
-        Vector3 FiveTarget     = GetDirection(poses[6], poses[5]).normalized;
-        Vector3 SixTarget      = GetDirection(poses[5], poses[6]).normalized;
-        Vector3 SevenTarget    = GetDirection(poses[5], poses[7]).normalized;
-        Vector3 EightTarget    = GetDirection(poses[6], poses[8]).normalized;
-        Vector3 NineTarget     = GetDirection(poses[7], poses[9]).normalized;
-        Vector3 TenTarget      = GetDirection(poses[8], poses[10]).normalized;
-        Vector3 ElevenTarget   = GetDirection(poses[5], poses[11]).normalized;
-        Vector3 TwelveTarget   = GetDirection(poses[6], poses[12]).normalized;
-        Vector3 ThirteenTarget = GetDirection(poses[11], poses[13]).normalized;
-        Vector3 FourteenTarget = GetDirection(poses[12], poses[14]).normalized;
-        Vector3 FifteenTarget  = GetDirection(poses[13], poses[15]).normalized;
-        Vector3 SixteenTarget  = GetDirection(poses[14], poses[16]).normalized;
+        Vector3 FiveTarget     = GetDirection(poses[6], poses[5]).normalized;//direction between rightShoulder & leftShoulder
+        Vector3 SixTarget      = GetDirection(poses[5], poses[6]).normalized;//direction between leftShoulder & rightShoulder
+        Vector3 SevenTarget    = GetDirection(poses[5], poses[7]).normalized;//direction between leftShoulder & leftElbow
+        Vector3 EightTarget    = GetDirection(poses[6], poses[8]).normalized;//direction between rightShoulder & rightElbow
+        Vector3 NineTarget     = GetDirection(poses[7], poses[9]).normalized;//direction between leftElbow & leftWrist
+        Vector3 TenTarget      = GetDirection(poses[8], poses[10]).normalized;//direction between rightElbow & rightWrist
+        Vector3 ElevenTarget   = GetDirection(poses[5], poses[11]).normalized;//direction between leftShoulder & leftHip
+        Vector3 TwelveTarget   = GetDirection(poses[6], poses[12]).normalized;//direction between rightShoulder & rightHip
+        Vector3 ThirteenTarget = GetDirection(poses[11], poses[13]).normalized;//direction between leftHip & leftKnee
+        Vector3 FourteenTarget = GetDirection(poses[12], poses[14]).normalized;//direction between rightHip & rightKnee
+        Vector3 FifteenTarget  = GetDirection(poses[13], poses[15]).normalized;//direction between leftKnee & leftAnkle
+        Vector3 SixteenTarget  = GetDirection(poses[14], poses[16]).normalized;//direction between rightKnee & rightAnkle
 
         resampledPoses.Add(ZeroTargetTwo);
         resampledPoses.Add(OneTarget);
@@ -178,28 +178,28 @@ public static class VectorUtils
         float[] sixFloat = new float[3] {poses[6].x, poses[6].y, poses[6].z};
         float[] FiveSixCentroidFloat = GetCentroid(new float[][]{fiveFloat, sixFloat});
         Vector3 FiveSixCentroidVector3 = new Vector3(FiveSixCentroidFloat[0], FiveSixCentroidFloat[1], 0.0f);
-        Vector3 ZeroTwo = FiveSixCentroidVector3;
+        Vector3 ZeroTwo = FiveSixCentroidVector3;//centroid of leftShoulder & rightShoulder
 
-        Vector3 ZeroTargetOne  = poses[0];
-        Vector3 ZeroTargetTwo  = ZeroTargetOne  + (GetDirection(poses[0], ZeroTwo).normalized    * magnitude);
+        Vector3 ZeroTargetOne  = poses[0];//nose
+        Vector3 ZeroTargetTwo  = ZeroTargetOne  + (GetDirection(poses[0], ZeroTwo).normalized    * magnitude);//direction between nose & centroid of leftShoulder & rightShoulder
 
-        Vector3 OneTarget      = ZeroTargetOne  + (GetDirection(poses[0], poses[1]).normalized   * magnitude * 0.25f);
-        Vector3 TwoTarget      = ZeroTargetOne  + (GetDirection(poses[0], poses[2]).normalized   * magnitude * 0.25f);
-        Vector3 ThreeTarget    = OneTarget      + (GetDirection(poses[1], poses[3]).normalized   * magnitude * 0.25f);
-        Vector3 FourTarget     = TwoTarget      + (GetDirection(poses[2], poses[4]).normalized   * magnitude * 0.25f);
+        Vector3 OneTarget      = ZeroTargetOne  + (GetDirection(poses[0], poses[1]).normalized   * magnitude * 0.25f);//direction between nose & leftEye
+        Vector3 TwoTarget      = ZeroTargetOne  + (GetDirection(poses[0], poses[2]).normalized   * magnitude * 0.25f);//direction between nose & rightEye
+        Vector3 ThreeTarget    = OneTarget      + (GetDirection(poses[1], poses[3]).normalized   * magnitude * 0.25f);//direction between leftEye & leftEar
+        Vector3 FourTarget     = TwoTarget      + (GetDirection(poses[2], poses[4]).normalized   * magnitude * 0.25f);//direction between rightEye & rightEar
 
-        Vector3 FiveTarget     = ZeroTargetTwo  + (GetDirection(poses[6], poses[5]).normalized   * magnitude * 0.5f);
-        Vector3 SixTarget      = ZeroTargetTwo  + (GetDirection(poses[5], poses[6]).normalized   * magnitude * 0.5f);
-        Vector3 SevenTarget    = FiveTarget     + (GetDirection(poses[5], poses[7]).normalized   * magnitude);
-        Vector3 EightTarget    = SixTarget      + (GetDirection(poses[6], poses[8]).normalized   * magnitude);
-        Vector3 NineTarget     = SevenTarget    + (GetDirection(poses[7], poses[9]).normalized   * magnitude);
-        Vector3 TenTarget      = EightTarget    + (GetDirection(poses[8], poses[10]).normalized  * magnitude);
-        Vector3 ElevenTarget   = FiveTarget     + (GetDirection(poses[5], poses[11]).normalized  * magnitude);
-        Vector3 TwelveTarget   = SixTarget      + (GetDirection(poses[6], poses[12]).normalized  * magnitude);
-        Vector3 ThirteenTarget = ElevenTarget   + (GetDirection(poses[11], poses[13]).normalized * magnitude);
-        Vector3 FourteenTarget = TwelveTarget   + (GetDirection(poses[12], poses[14]).normalized * magnitude);
-        Vector3 FifteenTarget  = ThirteenTarget + (GetDirection(poses[13], poses[15]).normalized * magnitude);
-        Vector3 SixteenTarget  = FourteenTarget + (GetDirection(poses[14], poses[16]).normalized * magnitude);
+        Vector3 FiveTarget     = ZeroTargetTwo  + (GetDirection(poses[6], poses[5]).normalized   * magnitude * 0.5f);//direction between rightShoulder & leftShoulder
+        Vector3 SixTarget      = ZeroTargetTwo  + (GetDirection(poses[5], poses[6]).normalized   * magnitude * 0.5f);//direction between leftShoulder & rightShoulder
+        Vector3 SevenTarget    = FiveTarget     + (GetDirection(poses[5], poses[7]).normalized   * magnitude);//direction between leftShoulder & leftElbow
+        Vector3 EightTarget    = SixTarget      + (GetDirection(poses[6], poses[8]).normalized   * magnitude);//direction between rightShoulder & rightElbow
+        Vector3 NineTarget     = SevenTarget    + (GetDirection(poses[7], poses[9]).normalized   * magnitude);//direction between leftElbow & leftWrist
+        Vector3 TenTarget      = EightTarget    + (GetDirection(poses[8], poses[10]).normalized  * magnitude);//direction between rightElbow & rightWrist
+        Vector3 ElevenTarget   = FiveTarget     + (GetDirection(poses[5], poses[11]).normalized  * magnitude);//direction between leftShoulder & leftHip
+        Vector3 TwelveTarget   = SixTarget      + (GetDirection(poses[6], poses[12]).normalized  * magnitude);//direction between rightShoulder & rightHip
+        Vector3 ThirteenTarget = ElevenTarget   + (GetDirection(poses[11], poses[13]).normalized * magnitude);//direction between leftHip & leftKnee
+        Vector3 FourteenTarget = TwelveTarget   + (GetDirection(poses[12], poses[14]).normalized * magnitude);//direction between rightHip & rightKnee
+        Vector3 FifteenTarget  = ThirteenTarget + (GetDirection(poses[13], poses[15]).normalized * magnitude);//direction between leftKnee & leftAnkle
+        Vector3 SixteenTarget  = FourteenTarget + (GetDirection(poses[14], poses[16]).normalized * magnitude);//direction between rightKnee & rightAnkle
 
         resampledPoses.Add(ZeroTargetOne);
         resampledPoses.Add(OneTarget);
