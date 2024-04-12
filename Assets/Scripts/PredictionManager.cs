@@ -33,7 +33,9 @@ public class PredictionManager : MonoBehaviour
     private bool middle;
     private const float THRESHOLD = 0.7f;
     private const float MIDDLE_THRESHOLD = 0.45f;
-    private float countTime;
+    private float countTimer;
+    private List<int> faceList = new List<int> { 0,1,2,3,4 };
+    private List<int> bodyList = new List<int> { 5,6,7,8,9,10,11,12,13,14,15,16 };
 
     protected void Start()
     {
@@ -105,12 +107,17 @@ public class PredictionManager : MonoBehaviour
             //queue up the output prediction's one class
             originalOnePredictions.Enqueue(output[1]);
 
+            float averageOnePrediction = 0.0f;
+
             //reset the output prediction's one class to the average of the queue values
             if (originalOnePredictions.Count == 4) {
                 float[] oops = originalOnePredictions.ToArray();
                 float average = oops.Sum() / oops.Length;
-                output[1] = average;
+                //output[1] = average;
+                averageOnePrediction = average;
             }
+
+            
 
 #region predictionStep
             /*
@@ -137,12 +144,12 @@ public class PredictionManager : MonoBehaviour
 
             //" "
             //same as #region predictionStep except performed on one class predictions
-            if (output[1] > previousOnePrediction + thresholdToMove) {
-                if (movingOnePrediction < output[1]) {
+            if (averageOnePrediction > previousOnePrediction + thresholdToMove) {
+                if (movingOnePrediction < averageOnePrediction) {
                     movingOnePrediction += moveStep;
                 }
-            } else if (output[1] < previousOnePrediction - thresholdToMove) {
-                if (movingOnePrediction > output[1]) {
+            } else if (averageOnePrediction < previousOnePrediction - thresholdToMove) {
+                if (movingOnePrediction > averageOnePrediction) {
                     movingOnePrediction -= moveStep;
                 }
             }
@@ -155,7 +162,7 @@ public class PredictionManager : MonoBehaviour
             previousZeroPrediction = currentZeroPredicition;
             currentZeroPredicition = output[0];
             previousOnePrediction = currentOnePredicition;
-            currentOnePredicition = output[1];
+            currentOnePredicition = averageOnePrediction;
 
             //manage the queue size ie time horizon
             if (movingOnePredictions.Count == 4) {
@@ -172,9 +179,9 @@ public class PredictionManager : MonoBehaviour
                 movingOnePrediction = average;
             }
 
-            //a check to ignore output if false positive channel class prediction is higher than a threshold or if confident pose predictions are below a threshold
-            if (output[2] >= 0.3f || MoveNetSinglePoseSample.poses.Count(x => x.z >= 0.3f) <= 4) {
-
+            //ignore output if false positive class prediction is higher than a threshold or if confident body predictions are below a threshold
+            if (output[2] >= 0.3f || MoveNetSinglePoseSample.poses.Where((x, i) => bodyList.Contains(i) && x.z >= 0.1f).Count() < 3) {
+                
             } else {
 
                 /*
