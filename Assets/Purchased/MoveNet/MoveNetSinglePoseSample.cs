@@ -7,6 +7,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using TensorFlowLite;
 using TensorFlowLite.MoveNet;
+using UnityEngine.Events;
 
 [RequireComponent(typeof(WebCamInput))]
 public class MoveNetSinglePoseSample : MonoBehaviour
@@ -49,6 +50,8 @@ public class MoveNetSinglePoseSample : MonoBehaviour
     private CancellationToken cancellationToken;
     private Texture currentTexture;
     private bool isInvoking;
+    public Texture videoTexture;
+    public TensorFlowLite.WebCamInput.TextureUpdateEvent TextureUpdatePublisher;
 
     private void Start()
     {
@@ -58,7 +61,8 @@ public class MoveNetSinglePoseSample : MonoBehaviour
         cancellationToken = this.GetCancellationTokenOnDestroy();
 
         webCamInput = GetComponent<WebCamInput>();
-        webCamInput.OnTextureUpdate.AddListener(OnTextureUpdate);
+        TextureUpdatePublisher = (videoTexture != null) ? TextureUpdatePublisher : webCamInput.OnTextureUpdate;
+        TextureUpdatePublisher.AddListener(OnTextureUpdate);
 
         currentPoses = new float[poses.Count * 2];
         previousPoses = new float[poses.Count * 2];
@@ -71,7 +75,7 @@ public class MoveNetSinglePoseSample : MonoBehaviour
 
     private void OnDestroy()
     {
-        webCamInput.OnTextureUpdate.RemoveListener(OnTextureUpdate);
+        TextureUpdatePublisher.RemoveListener(OnTextureUpdate);
         moveNet?.Dispose();
         drawer?.Dispose();
     }
@@ -91,7 +95,7 @@ public class MoveNetSinglePoseSample : MonoBehaviour
     public void CleanUp()
     {
         runBackground = false;
-        webCamInput.OnTextureUpdate.RemoveListener(OnTextureUpdate);
+        TextureUpdatePublisher.RemoveListener(OnTextureUpdate);
     }
 
     private void OnTextureUpdate(Texture texture)
@@ -101,12 +105,13 @@ public class MoveNetSinglePoseSample : MonoBehaviour
 
     protected IEnumerator Invoker()
     {
-        while(isInvoking) {
+        while(isInvoking) {            
 
             if (currentTexture == null) {
                 yield return new WaitForSeconds(0.1f);
                 continue;
             }
+            
             if (runBackground) {
                 if (task.Status.IsCompleted()) {
                     task = InvokeAsync(currentTexture);
@@ -191,6 +196,10 @@ public class MoveNetSinglePoseSample : MonoBehaviour
 
     private void Update()
     {
+        if (videoTexture != null && TextureUpdatePublisher != null) {
+            TextureUpdatePublisher.Invoke(videoTexture);
+        }
+
         if (pose != null)
         {
             if (isDebugOn) drawer.DrawPose(pose, threshold);
