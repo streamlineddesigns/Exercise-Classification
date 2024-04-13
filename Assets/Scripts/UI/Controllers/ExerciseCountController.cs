@@ -8,6 +8,8 @@ public class ExerciseCountController : Controller
 {
     [SerializeField] private TMP_Text ExerciseNameText;
     [SerializeField] private TMP_Text CountText;
+    [SerializeField] private TMP_Text CountDownText;
+    [SerializeField] private GameObject CountDownContainer;
     private bool isRunning;
 
     protected void OnEnable()
@@ -43,6 +45,13 @@ public class ExerciseCountController : Controller
 
     IEnumerator Run()
     {
+        CountDownContainer.SetActive(true);
+        for (int i = 5; i > 0; i--) {
+            CountDownText.text = i.ToString();
+            yield return new WaitForSeconds(1.25f);
+        }
+        CountDownContainer.SetActive(false);
+
         while(isRunning)
         {
             CountText.text = AppManager.Singleton.PredictionManager.count.ToString();
