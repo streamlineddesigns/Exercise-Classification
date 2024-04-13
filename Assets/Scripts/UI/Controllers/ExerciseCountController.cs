@@ -27,6 +27,7 @@ public class ExerciseCountController : Controller
 
     protected void OnExerciseSelected(string name)
     {
+        CountText.text = "0";
         ExerciseNameText.text = name;
         isRunning = true;
         StartCoroutine(Run());        
@@ -51,6 +52,7 @@ public class ExerciseCountController : Controller
             yield return new WaitForSeconds(1.25f);
         }
         CountDownContainer.SetActive(false);
+        AppManager.Singleton.PredictionManager.count = 0;
 
         while(isRunning)
         {
