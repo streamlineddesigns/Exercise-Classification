@@ -32,7 +32,7 @@ public class PredictionManager : MonoBehaviour
     private bool switcher;
     private bool middle;
     private const float THRESHOLD = 0.7f;
-    private const float MIDDLE_THRESHOLD = 0.45f;
+    private const float MIDDLE_THRESHOLD = 0.5f;
     private float countTimer;
     private List<int> faceList = new List<int> { 0,1,2,3,4 };
     private List<int> bodyList = new List<int> { 5,6,7,8,9,10,11,12,13,14,15,16 };
@@ -188,10 +188,15 @@ public class PredictionManager : MonoBehaviour
                  * Hysteresis Filter
                  */
                 //checks if one class prediction is less than a threshold. effectively 'resetting' it
-                if (movingOnePrediction < MIDDLE_THRESHOLD) {
-                    if (! switcher) {
+                if (movingOnePrediction <= MIDDLE_THRESHOLD) {
+                    //checks if prediction remains below threshold for a time period
+                    if (countTimer >= 0.01f && ! switcher) {
                         switcher = true;
+                        countTimer = 0.0f;
                     }
+                    countTimer += Time.deltaTime;
+                } else {
+                    countTimer = 0.0f;
                 }
                 
                 //checks if one class prediction is more than a threshold. effectively 'counting' it
