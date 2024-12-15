@@ -226,11 +226,11 @@ public class PredictionManager : MonoBehaviour
                         zeroCount = 0;
                         oneCount = 0;
                         count++;
-                        Debug.Log("Program Counted");
+                        //Debug.Log("Program Counted");
                     }
                 }
 
-                Debug.Log("Zero: " + output[0] + " One: " + output[1]);
+                //Debug.Log("Zero: " + output[0] + " One: " + output[1]);//$$test only for testing //observe raw output
 
                 
                 //try this later too

@@ -36,13 +36,14 @@ public class Heatmap
 
         for (int i = 0; i < connections.Count; i++) {
             int startIndex = connections[i][0];
-            int endIndex = connections[i][1];
-
+            int unsafeEndIndex = connections[i][1];//$$test only//essentially there may be 1 extra index here so it's not safe to use in _poseSample.poses
+            int endIndex = (unsafeEndIndex <= _poseSample.poses.Count - 1) ? unsafeEndIndex : connections[i][0];
+                
             Vector2 start = points[startIndex];
-            Vector2 end = points[endIndex];
+            Vector2 end = points[unsafeEndIndex];//$$test only//unsafe end index is needed here because it exists in points
 
             //$$test only for testing // require some confidence 
-            if (_poseSample.poses[startIndex].z > 0.01f /*_poseSample.threshold*/ && _poseSample.poses[endIndex].z > 0.01f /*_poseSample.threshold*/) {
+            if (_poseSample.poses != null && _poseSample.poses[startIndex].z > 0.01f /*_poseSample.threshold*/ && _poseSample.poses[endIndex].z > 0.01f /*_poseSample.threshold*/) {
                 AddConnectionPoints(start, end);
             }
             

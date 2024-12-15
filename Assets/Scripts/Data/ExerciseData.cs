@@ -15,6 +15,7 @@ namespace Data {
         public float[] startPosition;
         public float[] endPosition;
         public float[] weights;
+        public bool[] isConnectionOn;
     }
 
 }

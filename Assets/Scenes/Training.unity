@@ -14692,6 +14692,65 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &431187771
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 431187772}
+  - component: {fileID: 431187773}
+  m_Layer: 0
+  m_Name: AppManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &431187772
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 431187771}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 793849882}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &431187773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 431187771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a99f84b2c340c2e4b9174a6c798e8467, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentExerciseName: 
+  CurrentExerciseData:
+    name: 
+    MLPModel: {fileID: 0}
+    LSTMModel: {fileID: 0}
+    CNNModel: {fileID: 0}
+    startPosition: []
+    endPosition: []
+    weights: []
+    isConnectionOn: 0000000000000000000000000000
+  PredictionManager: {fileID: 0}
+  ExerciseDataRepository: {fileID: 11400000, guid: 560137f7155084f499e2e85c1756b567, type: 2}
+  ControllerRegistry: {fileID: 0}
+  CNNAEInferenceController: {fileID: 0}
+  CNNEInferenceController: {fileID: 0}
 --- !u!1 &435685297
 GameObject:
   m_ObjectHideFlags: 0
@@ -19570,13 +19629,13 @@ MonoBehaviour:
   normalizedPoseDirection: []
   interpolatedPreviousPoses: []
   interpolatedCurrentPoses: []
-  isDebugOn: 1
+  isDebugOn: 0
   options:
     modelPath: lite-model_movenet_singlepose_lightning_tflite_float16_4.tflite
     aspectMode: 1
   cameraView: {fileID: 1928826571}
   runBackground: 1
-  threshold: 0.1
+  _threshold: 0.3
   videoTexture: {fileID: 8400000, guid: 755f7b6d58ab4e441bd9387667b14fbc, type: 2}
   TextureUpdatePublisher:
     m_PersistentCalls:
@@ -25335,9 +25394,11 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 431187772}
   - {fileID: 601628396}
   - {fileID: 150566653}
   - {fileID: 1326756454}
+  - {fileID: 1285190983}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &795940296
@@ -32807,7 +32868,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1074918885
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39887,6 +39948,53 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1285190982
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1285190983}
+  - component: {fileID: 1285190984}
+  m_Layer: 0
+  m_Name: VideoPlayerHelper
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1285190983
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1285190982}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 793849882}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1285190984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1285190982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51a11cbedd4f9324ca161f9dabb93291, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  videoPlayer: {fileID: 1557301216}
+  frameCount: 0
+  currentFrameID: 0
 --- !u!1 &1286953383
 GameObject:
   m_ObjectHideFlags: 0

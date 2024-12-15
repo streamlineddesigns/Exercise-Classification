@@ -72820,6 +72820,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentExerciseName: 
+  CurrentExerciseData:
+    name: 
+    MLPModel: {fileID: 0}
+    LSTMModel: {fileID: 0}
+    CNNModel: {fileID: 0}
+    startPosition: []
+    endPosition: []
+    weights: []
+    isConnectionOn: 0000000000000000000000000000
   PredictionManager: {fileID: 844904067}
   ExerciseDataRepository: {fileID: 11400000, guid: 560137f7155084f499e2e85c1756b567, type: 2}
   ControllerRegistry: {fileID: 762407468}

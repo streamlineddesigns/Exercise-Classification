@@ -73,19 +73,19 @@ public static class VectorUtils
             6,11//direction between rightShoulder & leftHip
         };
 
-        //connections.Add(connectionOne);//$$test only for testing //lets skip this for now
-        connections.Add(connectionTwo);
-        connections.Add(connectionThree);
-        connections.Add(connectionFour);
-        connections.Add(connectionFive);
-        connections.Add(connectionSix);
-        connections.Add(connectionSeven);
-        connections.Add(connectionEight);
-        connections.Add(connectionNine);
-        connections.Add(connectionTen);
-        connections.Add(connectionEleven);
-        connections.Add(connectionTwelve);
-        connections.Add(connectionThirteen);
+        if (AppManager.Singleton.CurrentExerciseData.isConnectionOn[1]) connections.Add(connectionOne);
+        if (AppManager.Singleton.CurrentExerciseData.isConnectionOn[2]) connections.Add(connectionTwo);
+        if (AppManager.Singleton.CurrentExerciseData.isConnectionOn[3]) connections.Add(connectionThree);
+        if (AppManager.Singleton.CurrentExerciseData.isConnectionOn[4]) connections.Add(connectionFour);
+        if (AppManager.Singleton.CurrentExerciseData.isConnectionOn[5]) connections.Add(connectionFive);
+        if (AppManager.Singleton.CurrentExerciseData.isConnectionOn[6]) connections.Add(connectionSix);
+        if (AppManager.Singleton.CurrentExerciseData.isConnectionOn[7]) connections.Add(connectionSeven);
+        if (AppManager.Singleton.CurrentExerciseData.isConnectionOn[8]) connections.Add(connectionEight);
+        if (AppManager.Singleton.CurrentExerciseData.isConnectionOn[9]) connections.Add(connectionNine);
+        if (AppManager.Singleton.CurrentExerciseData.isConnectionOn[10]) connections.Add(connectionTen);
+        if (AppManager.Singleton.CurrentExerciseData.isConnectionOn[11]) connections.Add(connectionEleven);
+        if (AppManager.Singleton.CurrentExerciseData.isConnectionOn[12]) connections.Add(connectionTwelve);
+        if (AppManager.Singleton.CurrentExerciseData.isConnectionOn[13]) connections.Add(connectionThirteen);
 
         //connections.Add(connectionFourteen);
         //connections.Add(connectionFifteen);

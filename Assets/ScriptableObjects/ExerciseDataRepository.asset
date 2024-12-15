@@ -224,6 +224,7 @@ MonoBehaviour:
     - -0.117875725
     - 0.98201317
     weights: []
+    isConnectionOn: 0101010101010101010101010101
   - name: Shoulder Press
     MLPModel: {fileID: 5022602860645237092, guid: 6596099868626b44cb4fe9df46543fb9, type: 3}
     LSTMModel: {fileID: 5022602860645237092, guid: 3c439f911bf921c4dae4ad63ba120d23, type: 3}
@@ -435,6 +436,7 @@ MonoBehaviour:
     - 0.011385814
     - 0.9997147
     weights: []
+    isConnectionOn: 0101010101010101010101010101
   - name: Lateral Raises
     MLPModel: {fileID: 5022602860645237092, guid: fb30d45d76755254db12f06bc4d6639c, type: 3}
     LSTMModel: {fileID: 5022602860645237092, guid: 9e896682754364b49b9df99b27f4dc82, type: 3}
@@ -646,6 +648,7 @@ MonoBehaviour:
     - 0.03866734
     - 0.9987374
     weights: []
+    isConnectionOn: 0101010101010101010101010101
   - name: Bicep Curls
     MLPModel: {fileID: 5022602860645237092, guid: 70fe4ae3ed00cc345814d4d0b9a4db6b, type: 3}
     LSTMModel: {fileID: 5022602860645237092, guid: 876660b64101f9742ae0cf0ea75d7d8b, type: 3}
@@ -857,6 +860,7 @@ MonoBehaviour:
     - 0.06158668
     - 0.99756396
     weights: []
+    isConnectionOn: 0101010101010101010101010101
   - name: Lunges
     MLPModel: {fileID: 5022602860645237092, guid: e04c574fcdaa22b4c89043ac175bbbff, type: 3}
     LSTMModel: {fileID: 5022602860645237092, guid: 47d087d0bbc7dfe4cb30fac51a5c3d53, type: 3}
@@ -1068,6 +1072,7 @@ MonoBehaviour:
     - 0.0680723
     - 0.99583024
     weights: []
+    isConnectionOn: 0101010101010101010101010101
   - name: Calf Raises
     MLPModel: {fileID: 5022602860645237092, guid: e04c574fcdaa22b4c89043ac175bbbff, type: 3}
     LSTMModel: {fileID: 5022602860645237092, guid: 47d087d0bbc7dfe4cb30fac51a5c3d53, type: 3}
@@ -1279,6 +1284,7 @@ MonoBehaviour:
     - -0.1803389
     - 0.98337996
     weights: []
+    isConnectionOn: 0101010101010101010101010101
   - name: Push Ups
     MLPModel: {fileID: 5022602860645237092, guid: b4429732f6101a240ae5e9b1aa4d55c2, type: 3}
     LSTMModel: {fileID: 5022602860645237092, guid: 2528dab736561ff4890f6eeb1eec0224, type: 3}
@@ -1490,6 +1496,7 @@ MonoBehaviour:
     - 0.2685115
     - 0.19306807
     weights: []
+    isConnectionOn: 0000010101010101010100000000
   - name: Crunches
     MLPModel: {fileID: 5022602860645237092, guid: b090c3ec7fe9cd94a9d0c63e0bbd586c, type: 3}
     LSTMModel: {fileID: 5022602860645237092, guid: 3300b45e73e62494da7c1d63c011ea97, type: 3}
@@ -1701,6 +1708,7 @@ MonoBehaviour:
     - -0.25645885
     - 0.964092
     weights: []
+    isConnectionOn: 0101010101010101010101010101
   - name: Squats
     MLPModel: {fileID: 5022602860645237092, guid: e04c574fcdaa22b4c89043ac175bbbff, type: 3}
     LSTMModel: {fileID: 5022602860645237092, guid: 47d087d0bbc7dfe4cb30fac51a5c3d53, type: 3}
@@ -1912,6 +1920,7 @@ MonoBehaviour:
     - -0.1803389
     - 0.98337996
     weights: []
+    isConnectionOn: 0101010101010101010101010101
   - name: Left Bicep Curls
     MLPModel: {fileID: 5022602860645237092, guid: 8f40a29d12368614692b600e144f3aa2, type: 3}
     LSTMModel: {fileID: 5022602860645237092, guid: 910bf6b728dd92a4395cc6bf6c77fc04, type: 3}
@@ -2123,6 +2132,7 @@ MonoBehaviour:
     - -0.00796662
     - 0.999898
     weights: []
+    isConnectionOn: 0101010101010101010101010101
   - name: Tricep Extensions
     MLPModel: {fileID: 0}
     LSTMModel: {fileID: 0}
@@ -2130,6 +2140,7 @@ MonoBehaviour:
     startPosition: []
     endPosition: []
     weights: []
+    isConnectionOn: 0101010101010101010101010101
   - name: Bent Over Rows
     MLPModel: {fileID: 0}
     LSTMModel: {fileID: 0}
@@ -2137,6 +2148,7 @@ MonoBehaviour:
     startPosition: []
     endPosition: []
     weights: []
+    isConnectionOn: 0101010101010101010101010101
   - name: Front Raises
     MLPModel: {fileID: 0}
     LSTMModel: {fileID: 0}
@@ -2144,3 +2156,4 @@ MonoBehaviour:
     startPosition: []
     endPosition: []
     weights: []
+    isConnectionOn: 0101010101010101010101010101
