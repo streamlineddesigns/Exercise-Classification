@@ -6,11 +6,13 @@ public class Heatmap
 {
     public int gridSize;
     private float[,] grid;
+    private MoveNetSinglePoseSample _poseSample;
 
-    public Heatmap(int size)
+    public Heatmap(int size, MoveNetSinglePoseSample PoseSample)
     {
         gridSize = size;
         grid = new float[gridSize, gridSize];
+        _poseSample = PoseSample;
     }
 
     public void AddPoint(Vector2 point)
@@ -26,10 +28,11 @@ public class Heatmap
 
     public void AddPoints(List<Vector2> points, List<List<int>> connections)
     {
-        foreach (var point in points)
+        //$$test only for testing //lets skip this for now
+        /*foreach (var point in points)
         {
             AddPoint(point);
-        }
+        }*/
 
         for (int i = 0; i < connections.Count; i++) {
             int startIndex = connections[i][0];
@@ -38,13 +41,17 @@ public class Heatmap
             Vector2 start = points[startIndex];
             Vector2 end = points[endIndex];
 
-            AddConnectionPoints(start, end);
+            //$$test only for testing // require some confidence 
+            if (_poseSample.poses[startIndex].z > 0.01f /*_poseSample.threshold*/ && _poseSample.poses[endIndex].z > 0.01f /*_poseSample.threshold*/) {
+                AddConnectionPoints(start, end);
+            }
+            
         }
     }
 
     private void AddConnectionPoints(Vector2 start, Vector2 end)
     {
-        int numSteps = 7;
+        int numSteps = 28;
         for (int step = 0; step <= numSteps; step++)
         {
             float t = (float)step / numSteps;

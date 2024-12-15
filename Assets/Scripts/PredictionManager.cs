@@ -18,6 +18,7 @@ public class PredictionManager : MonoBehaviour
     private Queue<float> movingZeroPredictions = new Queue<float>(4);
     private Queue<float> movingOnePredictions = new Queue<float>(4);
     private Queue<float> originalOnePredictions = new Queue<float>(4);
+    private Queue<float> originalZeroPredictions = new Queue<float>(4);
 
     [SerializeField] private MoveNetSinglePoseSample MoveNetSinglePoseSample;
     [SerializeField] private NNInferenceController NNInferenceController;
@@ -29,10 +30,14 @@ public class PredictionManager : MonoBehaviour
     private bool isRunning;
     private const int CLASSES_COUNT = 3;
     
+    private int oneCount;
+    private int zeroCount;
+    private bool innerSecondarySwitcher;
+    private bool innerSwitcher;
     private bool switcher;
     private bool middle;
-    private const float THRESHOLD = 0.7f;
-    private const float MIDDLE_THRESHOLD = 0.5f;
+    private const float THRESHOLD = 0.75f;
+    private const float MIDDLE_THRESHOLD = 0.25f;
     private float countTimer;
     private List<int> faceList = new List<int> { 0,1,2,3,4 };
     private List<int> bodyList = new List<int> { 5,6,7,8,9,10,11,12,13,14,15,16 };
@@ -117,6 +122,24 @@ public class PredictionManager : MonoBehaviour
                 averageOnePrediction = average;
             }
 
+
+            //manage the queue size ie time horizon
+            if (originalZeroPredictions.Count == 4) {
+                originalZeroPredictions.Dequeue(); 
+            }
+
+            //queue up the output prediction's one class
+            originalZeroPredictions.Enqueue(output[0]);
+
+            float averageZeroPrediction = 0.0f;
+
+            //reset the output prediction's zero class to the average of the queue values
+            if (originalZeroPredictions.Count == 4) {
+                float[] oops = originalZeroPredictions.ToArray();
+                float average = oops.Sum() / oops.Length;
+                averageZeroPrediction = average;
+            }
+
             
 
 #region predictionStep
@@ -162,7 +185,7 @@ public class PredictionManager : MonoBehaviour
             previousZeroPrediction = currentZeroPredicition;
             currentZeroPredicition = output[0];
             previousOnePrediction = currentOnePredicition;
-            currentOnePredicition = averageOnePrediction;
+            currentOnePredicition = output[1];
 
             //manage the queue size ie time horizon
             if (movingOnePredictions.Count == 4) {
@@ -188,25 +211,33 @@ public class PredictionManager : MonoBehaviour
                  * Hysteresis Filter
                  */
                 //checks if one class prediction is less than a threshold. effectively 'resetting' it
-                if (movingOnePrediction <= MIDDLE_THRESHOLD) {
+                if (output[0] >= THRESHOLD && output[0] > previousZeroPrediction && output[1] <= MIDDLE_THRESHOLD && output[1] < previousOnePrediction) {
                     //checks if prediction remains below threshold for a time period
-                    if (countTimer >= 0.01f && ! switcher) {
-                        switcher = true;
-                        countTimer = 0.0f;
+                    if (zeroCount < 1) {
+                        zeroCount++;
                     }
-                    countTimer += Time.deltaTime;
-                } else {
-                    countTimer = 0.0f;
                 }
                 
                 //checks if one class prediction is more than a threshold. effectively 'counting' it
-                if (movingOnePrediction >= THRESHOLD) {
-                    if (switcher) {
-                        switcher = false;
+                if (output[1] >= THRESHOLD && output[1] > previousOnePrediction && output[0] <= MIDDLE_THRESHOLD && output[0] < previousZeroPrediction) {
+                    if (zeroCount >= 1 && oneCount < 1) {
+                        oneCount++;
+                    } else if (zeroCount >= 1 && oneCount >= 1) {
+                        zeroCount = 0;
+                        oneCount = 0;
                         count++;
+                        Debug.Log("Program Counted");
                     }
                 }
 
+                Debug.Log("Zero: " + output[0] + " One: " + output[1]);
+
+                
+                //try this later too
+                //keep last 2 time steps in a queue and then figure out if either happen consecutively
+                //then if that occurs, switch state to whichever happened consecutively
+                //keep state in a queue
+                //if the switching back and forth pattern happen in the state, then use that as count
             }
             
             yield return new WaitForSeconds(0.0333f);
@@ -236,10 +267,13 @@ public class PredictionManager : MonoBehaviour
         float[] NNOutput = new float[CLASSES_COUNT]   {NNInferenceController.output[0]   * pw, NNInferenceController.output[1]   * pw, NNInferenceController.output[2]   * pw};
         float[] MLPOutput = new float[CLASSES_COUNT]  {MLPInferenceController.output[0]  * nw, MLPInferenceController.output[1]  * nw, MLPInferenceController.output[2]  * nw};
         float[] LSTMOutput = new float[CLASSES_COUNT] {LSTMInferenceController.output[0] * nw, LSTMInferenceController.output[1] * nw, LSTMInferenceController.output[2] * nw};
-        float[] CNNOutput = new float[CLASSES_COUNT]  {CNNInferenceController.output[0]  * nw, CNNInferenceController.output[1]  * nw, CNNInferenceController.output[2]  * nw};
+        
+        //$$test only for testing //disregarding weights
+        float[] CNNOutput = new float[CLASSES_COUNT]  {CNNInferenceController.output[0], CNNInferenceController.output[1], CNNInferenceController.output[2]};
         
         //sum the weighted outputs to produce the final output
-        output = VectorUtils.GetSummation(new float[][]{NNOutput, MLPOutput, LSTMOutput, CNNOutput});
+        //$$test only for testing // using cnn only
+        output = CNNOutput;
     }
 
 }

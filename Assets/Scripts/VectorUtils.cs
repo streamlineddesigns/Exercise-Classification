@@ -7,9 +7,9 @@ using UnityEngine;
 
 public static class VectorUtils
 {
-    public static Heatmap GetHeatMap(List<Vector3> poses)
+    public static Heatmap GetHeatMap(List<Vector3> poses, MoveNetSinglePoseSample PoseSample)
     {
-        Heatmap heatmap = new Heatmap(28);
+        Heatmap heatmap = new Heatmap(28, PoseSample);
 
         List<List<int>> connections = new List<List<int>>();
 
@@ -73,7 +73,7 @@ public static class VectorUtils
             6,11//direction between rightShoulder & leftHip
         };
 
-        connections.Add(connectionOne);
+        //connections.Add(connectionOne);//$$test only for testing //lets skip this for now
         connections.Add(connectionTwo);
         connections.Add(connectionThree);
         connections.Add(connectionFour);

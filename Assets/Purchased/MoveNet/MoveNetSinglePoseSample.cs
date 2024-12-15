@@ -23,6 +23,11 @@ public class MoveNetSinglePoseSample : MonoBehaviour
     public float[] normalizedPoseDirection;
     public float[] interpolatedPreviousPoses;
     public float[] interpolatedCurrentPoses;
+    public float threshold {
+        get {
+            return _threshold;
+        }
+    }
     private Vector2 anchorPoint = new Vector2(0.5f, 0.1f);
 
     [SerializeField]
@@ -38,7 +43,7 @@ public class MoveNetSinglePoseSample : MonoBehaviour
     private bool runBackground = false;
 
     [SerializeField, Range(0, 1)]
-    private float threshold = 0.3f;
+    private float _threshold = 0.3f;
     
     private WebCamInput webCamInput;
 
@@ -158,7 +163,9 @@ public class MoveNetSinglePoseSample : MonoBehaviour
             //calculate resampled poses so positions are equidistant
             resampledPoses = VectorUtils.ResampleToUniformMagnitude(translatedPoses);
             //calculate heatmap
-            heatmap = VectorUtils.GetHeatMap(resampledPoses);
+            //$$testheatmap = VectorUtils.GetHeatMap(resampledPoses);
+            //$$test lets stop resampling to uniform magnitude
+            heatmap = VectorUtils.GetHeatMap(translatedPoses, this);
             //cache current, translated, resampled poses into a temp object
             List<float> tempPoses = new List<float>();
             for (int i = 0; i < resampledPoses.Count; i++) {
@@ -202,7 +209,7 @@ public class MoveNetSinglePoseSample : MonoBehaviour
 
         if (pose != null)
         {
-            if (isDebugOn) drawer.DrawPose(pose, threshold);
+            if (isDebugOn) drawer.DrawPose(pose, _threshold);
         }
     }
 }

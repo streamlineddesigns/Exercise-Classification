@@ -290,12 +290,21 @@ public class TrainingController : MonoBehaviour
 
     private void AddLSTMInput()
     {
-        heatmapVisual.SetHeatMapFlattened(MoveNetSinglePoseSample.heatmap);
+        /*heatmapVisual.SetHeatMapFlattened(MoveNetSinglePoseSample.heatmap);
         
         float[] inputs = CNNEInferenceController.encodedImageRepresentation;
         TrainingDataInput tdi = new TrainingDataInput();
         tdi.input = new float[inputs.Length];
         Array.Copy(inputs, tdi.input, inputs.Length);
+        LSTMTrainingData.input.Add(tdi);*/
+
+        //$$test only for testing // using cnn data for lstm
+        float[] imageRepresentation = MoveNetSinglePoseSample.heatmap.GetFlattenedHeatmap();
+        heatmapVisual.SetHeatMapFlattened(MoveNetSinglePoseSample.heatmap);
+
+        TrainingDataInput tdi = new TrainingDataInput();
+        tdi.input = new float[imageRepresentation.Length];
+        Array.Copy(imageRepresentation, tdi.input, imageRepresentation.Length);
         LSTMTrainingData.input.Add(tdi);
     }
 
@@ -386,13 +395,6 @@ public class TrainingController : MonoBehaviour
         using (StreamWriter writer = new StreamWriter(saveFilePath))  
         {
             for (int i = 0; i < trainingData.input.Count; i++) {
-                string writeString = "";
-
-                //comma seperated input values
-                for (int j = 0; j < trainingData.input[i].input.Length; j++) {
-                    writeString += trainingData.input[i].input[j] + ",";
-                }
-
                 //empty class
                 float[] emptyClass = new float[TOTAL_CLASSES]{0.0f,0.0f,0.5f};
 
@@ -400,12 +402,24 @@ public class TrainingController : MonoBehaviour
                 TrainingDataOutput[] tdo = trainingData.output.Where(x => x.index == i).ToArray();
                 float[] outputs = (tdo.Length == 0) ? emptyClass : tdo[0].output;
 
-                for (int k = 0; k < outputs.Length; k++) {
-                    string endString = (k == outputs.Length - 1) ? "" : ",";
-                    writeString += outputs[k] + endString;
+                //$$test only for testing //discarding the empty class
+                if (tdo.Length != 0) {
+                    string writeString = "";
+                    
+                    //comma seperated input values
+                    for (int j = 0; j < trainingData.input[i].input.Length; j++) {
+                        writeString += trainingData.input[i].input[j] + ",";
+                    }
+
+
+                    for (int k = 0; k < outputs.Length; k++) {
+                        string endString = (k == outputs.Length - 1) ? "" : ",";
+                        writeString += outputs[k] + endString;
+                    }
+
+                    writer.WriteLine(writeString);
                 }
                     
-                writer.WriteLine(writeString);
             }
         }
 
@@ -434,7 +448,7 @@ public class TrainingController : MonoBehaviour
                         tempTdo.index = j;
                         Array.Copy(tdo[0].output, tempTdo.output, TOTAL_CLASSES);
                         tdos.Add(tempTdo);
-                        int labelIndex = Array.IndexOf(tdo[0].output, 1.0f);
+                        /*int labelIndex = Array.IndexOf(tdo[0].output, 1.0f);
                         if (labelIndex != -1) {
                             //tempTdo.output[labelIndex] = (j == i) ? 1.0f : 1.0f - multiplier;//will do a smooth interpolation in the future, this is just for testing
                         }
@@ -444,7 +458,7 @@ public class TrainingController : MonoBehaviour
                         int otherLabelIndex = (labelIndex == 0) ? 1 : 0;
                         //tempTdo.output[otherLabelIndex] = otherVal;
 
-                        tdos.Add(tempTdo);
+                        tdos.Add(tempTdo);*/
                     }
                 }
             }
