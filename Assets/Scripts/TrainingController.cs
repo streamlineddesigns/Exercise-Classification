@@ -104,6 +104,30 @@ public class TrainingController : MonoBehaviour
         StopAllCoroutines();
     }
 
+    public void AddClassZeroExample()
+    {
+        int classIndex = 0;
+        float value = 1.0f;
+        AddDiscreteInput();
+        AddOutput(classIndex, value);
+    }
+
+    public void AddClassOneExample()
+    {
+        int classIndex = 1;
+        float value = 1.0f;
+        AddDiscreteInput();
+        AddOutput(classIndex, value);
+    }
+
+    public void AddClassTwoExample()
+    {
+        int classIndex = 2;
+        float value = 1.0f;
+        AddDiscreteInput();
+        AddOutput(classIndex, value);
+    }
+
     private void Update()
     {
         if (! isRecording) {
@@ -114,25 +138,16 @@ public class TrainingController : MonoBehaviour
         float value = 1.0f;
         
         if (Input.GetKeyDown(KeyCode.S) || Input.GetButtonDown("joystick button 0")) {
-            classIndex = 0;
-            value = 1.0f;
-            AddDiscreteInput();
-            AddOutput(classIndex, value);
+            AddClassZeroExample();
         }
 
         if (Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown("joystick button 3")) {
-            classIndex = 1;
-            value = 1.0f;
-            AddDiscreteInput();
-            AddOutput(classIndex, value);
+            AddClassOneExample();
             CountText.text = (MLPTrainingData.input.Count / 2).ToString();
         }
 
         if (Input.GetKeyDown(KeyCode.F) || Input.GetButtonDown("joystick button 2")) {
-            classIndex = 2;
-            value = 1.0f;
-            AddDiscreteInput();
-            AddOutput(classIndex, value);
+            AddClassTwoExample();
         }
     }
 
@@ -339,6 +354,10 @@ public class TrainingController : MonoBehaviour
 
     private void SaveStartEndPositions()
     {        
+        if (AppManager.Singleton.PredictionManager.isCollectingFalsePositives) {
+            return;
+        }
+        
         List<float[]> starts = new List<float[]>();
         List<float[]> ends = new List<float[]>();
 

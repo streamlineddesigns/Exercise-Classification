@@ -9,6 +9,8 @@ using Data;
 
 public class PredictionManager : MonoBehaviour
 {
+    public bool isCollectingFalsePositives = false;
+
     public float[] output;
     public int count;
     public float moveStep = 0.222f;
@@ -207,6 +209,14 @@ public class PredictionManager : MonoBehaviour
                 
             } else {
 
+                /*if (zeroCount >= 1) {
+                    countTimer += Time.deltaTime;
+                    if (countTimer >= 2.0f) {
+                        zeroCount = 0;
+                        oneCount = 0;
+                    }
+                }*/
+
                 /*
                  * Hysteresis Filter
                  */
@@ -215,6 +225,12 @@ public class PredictionManager : MonoBehaviour
                     //checks if prediction remains below threshold for a time period
                     if (zeroCount < 1) {
                         zeroCount++;
+
+                        
+                    }
+
+                    if (isCollectingFalsePositives) {
+                        AppManager.Singleton.TrainingController.AddClassTwoExample();
                     }
                 }
                 
@@ -227,6 +243,12 @@ public class PredictionManager : MonoBehaviour
                         oneCount = 0;
                         count++;
                         //Debug.Log("Program Counted");
+
+                        
+                    }
+
+                    if (isCollectingFalsePositives) {
+                        //AppManager.Singleton.TrainingController.AddClassTwoExample();
                     }
                 }
 

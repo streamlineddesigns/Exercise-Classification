@@ -11,6 +11,7 @@ public class AppManager : MonoBehaviour
     public string currentExerciseName;
     public ExerciseData CurrentExerciseData;
     public PredictionManager PredictionManager;
+    public TrainingController TrainingController;
     public ExerciseDataRepository ExerciseDataRepository;
     public ControllerRegistry ControllerRegistry;
     public CNNAEInferenceController CNNAEInferenceController;
