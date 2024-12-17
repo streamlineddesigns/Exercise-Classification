@@ -237,15 +237,19 @@ public class PredictionManager : MonoBehaviour
                 //checks if one class prediction is more than a threshold. effectively 'counting' it
                 if (output[1] >= THRESHOLD && output[1] > previousOnePrediction && output[0] <= MIDDLE_THRESHOLD && output[0] < previousZeroPrediction) {
                     if (zeroCount >= 1 && oneCount < 1) {
-                        oneCount++;
-                    } else if (zeroCount >= 1 && oneCount >= 1) {
+                        //oneCount++;
+                        zeroCount = 0;
+                        oneCount = 0;
+                        count++;
+                        //Debug.Log("Program Counted");
+                    }/* else if (zeroCount >= 1 && oneCount >= 1) {
                         zeroCount = 0;
                         oneCount = 0;
                         count++;
                         //Debug.Log("Program Counted");
 
                         
-                    }
+                    }*/
 
                     if (isCollectingFalsePositives) {
                         //AppManager.Singleton.TrainingController.AddClassTwoExample();
