@@ -32,3 +32,10 @@ python -m tf2onnx.convert --saved-model "./saved_cnnae_model_dir"  --opset 11 --
 
 python -m tensorflow.python.tools.saved_model_cli show --dir "./saved_cnne_model_dir" --tag_set serve --signature_def serving_default
 python -m tf2onnx.convert --saved-model "./saved_cnne_model_dir"  --opset 11 --inputs conv2d_input:0 --inputs-as-nchw conv2d_input:0 --output CNNE.onnx
+
+python VAETrainer.py
+python -m tensorflow.python.tools.saved_model_cli show --dir "./saved_vae_model_dir" --tag_set serve --signature_def serving_default
+python -m tf2onnx.convert --saved-model "./saved_vae_model_dir"  --opset 11 --inputs encoder_input:0 --inputs-as-nchw encoder_input:0 --output VAE.onnx
+
+python -m tensorflow.python.tools.saved_model_cli show --dir "./saved_ve_model_dir" --tag_set serve --signature_def serving_default
+python -m tf2onnx.convert --saved-model "./saved_ve_model_dir"  --opset 11 --inputs encoder_input:0 --inputs-as-nchw encoder_input:0 --output VE.onnx
