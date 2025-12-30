@@ -2,6 +2,11 @@
 
 ## Procedure
 
+### Body Pose Prediction Model 
+We used MoveNet Single Pose Lightning (tflite - quantized to float16)
+
+https://www.kaggle.com/models/google/movenet/tfLite/singlepose-lightning-tflite-float16
+
 ### Step 1 - Training Data Collection
 Record footage of someone doing an exercise in the desired screen orientation. ie Pushups in Portrait. Aim to get an even distributuion of examples whereby the subject in the video is recorded with a horizontal and vertical offset. Simply put, ensure the person in the video is to the left/right and close/further from the camera in each shot.
 
