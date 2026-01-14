@@ -38,8 +38,11 @@ public class PredictionManager : MonoBehaviour
     private bool innerSwitcher;
     private bool switcher;
     private bool middle;
-    private const float THRESHOLD = 0.75f;
-    private const float MIDDLE_THRESHOLD = 0.25f;
+    private const float ZERO_THRESHOLD = 0.95f;
+    private const float ZERO_MIDDLE_THRESHOLD = 0.2f;
+
+    private const float THRESHOLD = 0.95f;
+    private const float MIDDLE_THRESHOLD = 0.2f;
     private float countTimer;
     private List<int> faceList = new List<int> { 0,1,2,3,4 };
     private List<int> bodyList = new List<int> { 5,6,7,8,9,10,11,12,13,14,15,16 };
@@ -205,7 +208,7 @@ public class PredictionManager : MonoBehaviour
             }
 
             //ignore output if false positive class prediction is higher than a threshold or if confident body predictions are below a threshold
-            if (output[2] >= 0.3f || MoveNetSinglePoseSample.poses.Where((x, i) => bodyList.Contains(i) && x.z >= 0.1f).Count() < 3) {
+            if (MoveNetSinglePoseSample.poses.Where((x, i) => bodyList.Contains(i) && x.z >= 0.1f).Count() < 3) {
                 
             } else {
 
@@ -221,7 +224,7 @@ public class PredictionManager : MonoBehaviour
                  * Hysteresis Filter
                  */
                 //checks if one class prediction is less than a threshold. effectively 'resetting' it
-                if (output[0] >= THRESHOLD && output[0] > previousZeroPrediction && output[1] <= MIDDLE_THRESHOLD && output[1] < previousOnePrediction) {
+                if (output[0] >= ZERO_THRESHOLD && zeroCount == 0 && output[2] <= 0.5f) {
                     //checks if prediction remains below threshold for a time period
                     if (zeroCount < 1) {
                         zeroCount++;
@@ -235,7 +238,7 @@ public class PredictionManager : MonoBehaviour
                 }
                 
                 //checks if one class prediction is more than a threshold. effectively 'counting' it
-                if (output[1] >= THRESHOLD && output[1] > previousOnePrediction && output[0] <= MIDDLE_THRESHOLD && output[0] < previousZeroPrediction) {
+                else if (output[1] >= THRESHOLD && oneCount == 0) {
                     if (zeroCount >= 1 && oneCount < 1) {
                         //oneCount++;
                         zeroCount = 0;
@@ -295,11 +298,18 @@ public class PredictionManager : MonoBehaviour
         float[] LSTMOutput = new float[CLASSES_COUNT] {LSTMInferenceController.output[0] * nw, LSTMInferenceController.output[1] * nw, LSTMInferenceController.output[2] * nw};
         
         //$$test only for testing //disregarding weights
-        float[] CNNOutput = new float[CLASSES_COUNT]  {CNNInferenceController.output[0], CNNInferenceController.output[1], CNNInferenceController.output[2]};
+        float[] CNNOutput = new float[CLASSES_COUNT]  {CNNInferenceController.output[0] * nw, CNNInferenceController.output[1] * nw, CNNInferenceController.output[2] * nw};
         
+        List<float[]> outputs = new List<float[]>();
+        outputs.Add(NNOutput);
+        outputs.Add(MLPOutput);
+        outputs.Add(LSTMOutput);
+        outputs.Add(CNNOutput);
+
+
         //sum the weighted outputs to produce the final output
         //$$test only for testing // using cnn only
-        output = CNNOutput;
+        output = VectorUtils.GetSummation(outputs.ToArray());
     }
 
 }
