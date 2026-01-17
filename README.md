@@ -1,5 +1,8 @@
 # Exercise Classification
 
+## Demo Video
+https://www.youtube.com/shorts/YLEuQXkwqGU  
+
 ## Procedure
 
 ### Body Pose Prediction Model 
