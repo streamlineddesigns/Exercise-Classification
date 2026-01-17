@@ -1,6 +1,6 @@
 # Exercise Classification
 
-## Demo Video
+### Demo Video
 https://www.youtube.com/shorts/YLEuQXkwqGU  
 
 ## Procedure
