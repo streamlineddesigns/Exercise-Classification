@@ -3,7 +3,7 @@
 ## Procedure
 
 ### Body Pose Prediction Model 
-We used MoveNet Single Pose Lightning (tflite - quantized to float16)
+I used MoveNet Single Pose Lightning (tflite - quantized to float16)
 
 https://www.kaggle.com/models/google/movenet/tfLite/singlepose-lightning-tflite-float16
 
