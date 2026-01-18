@@ -1,4 +1,7 @@
-# Exercise Classification
+# Machine Learning Exercise Classification
+
+### Demo Video
+https://www.youtube.com/shorts/YLEuQXkwqGU  
 
 ## Procedure
 
